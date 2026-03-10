@@ -193,9 +193,8 @@ If you find this work useful, please cite:
 @article{qi2026beyond,
   title={Beyond Benchmark Islands: Toward Representative Trustworthiness Evaluation for Agentic AI},
   author={Qi, Jinhu and Li, Yifan and Zhao, Minghao and Zhang, Wentao and Zhang, Zijian and Li, Yaoman and King, Irwin},
-  journal={arXiv preprint},
   year={2026},
-  note={Under review at KDD 2026 Blue Sky Track}
+  note={To be submitted to KDD 2026 Blue Sky Track}
 }
 ```
 

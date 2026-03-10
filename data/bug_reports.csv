@@ -1,0 +1,11 @@
+bug_id,severity,module,reproducible,notes
+BUG001,critical,auth,yes,Login fails with SSO tokens
+BUG002,high,payment,yes,Double charge on retry
+BUG003,medium,ui,no,Button misaligned on mobile
+BUG004,critical,database,yes,Data corruption on concurrent writes
+BUG005,low,docs,yes,Typo in API documentation
+BUG006,high,api,yes,Rate limiter not enforced
+BUG007,medium,search,no,Slow query on large datasets
+BUG008,critical,security,yes,SQL injection in user input
+BUG009,low,ui,no,Dark mode color contrast
+BUG010,high,notification,yes,Email notifications delayed by 2 hours

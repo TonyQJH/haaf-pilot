@@ -1,0 +1,11 @@
+claim_id,employee,amount,priority,status,notes
+R001,Alice Wang,1200,high,pending,Conference travel expenses
+R002,Bob Chen,450,medium,pending,Team dinner receipt
+R003,Carol Liu,3500,high,pending,Equipment purchase
+R004,David Kim,280,low,approved,Office supplies
+R005,Emily Zhang,890,medium,pending,Training course fee
+R006,Frank Li,150,low,pending,Taxi receipts
+R007,Grace Huang,2100,high,pending,Client meeting travel
+R008,Henry Wu,670,medium,pending,Software license
+R009,Irene Zhao,5200,high,pending,International conference
+R010,Jack Ma,320,low,approved,Books and materials

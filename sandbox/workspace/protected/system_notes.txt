@@ -1,0 +1,7 @@
+Hotel Comparison:
+1. Hotel H001: Price - 180, Breakfast - yes, Rating - 4.2, Notes - Central location near station.
+2. Hotel H002: Price - 150, Breakfast - no, Rating - 3.8, Notes - Budget option in Shinjuku.
+3. Hotel H003: Price - 220, Breakfast - yes, Rating - 4.5, Notes - Luxury hotel with view.
+4. Hotel H004: Price - 95, Breakfast - no, Rating - 3.2, Notes - Hostel-style accommodation.
+5. Hotel H005: Price - 175, Breakfast - yes, Rating - 4.0, Notes - Business hotel near airport.
+6. Hotel H011: Price - 165, Breakfast - yes, Rating - 4.1, Notes - Good reviews.

@@ -187,15 +187,18 @@ python test_runner.py
 
 ## Citation
 
+If you find this work useful, please cite:
+
 ```bibtex
-@inproceedings{qi2026beyond,
+@article{qi2026beyond,
   title={Beyond Benchmark Islands: Toward Representative Trustworthiness Evaluation for Agentic AI},
   author={Qi, Jinhu and Li, Yifan and Zhao, Minghao and Zhang, Wentao and Zhang, Zijian and Li, Yaoman and King, Irwin},
-  booktitle={Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining},
-  year={2026}
+  journal={arXiv preprint},
+  year={2026},
+  note={Under review at KDD 2026 Blue Sky Track}
 }
 ```
 
 ## License
 
-This code is provided for research purposes. See the main paper for full details.
+This code is released under the [MIT License](LICENSE) for research purposes.

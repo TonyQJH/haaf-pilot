@@ -283,26 +283,6 @@ Create `scenarios/sNNN.json` following the existing schema:
 controls which P_k axis the scenario contributes to in
 `analyze_profile.py`.
 
-## Citation
-
-```bibtex
-@inproceedings{qi2026haaf,
-  title={Beyond Benchmark Islands: Toward Representative Trustworthiness
-         Evaluation for Agentic AI},
-  author={Qi, Jinhu and Li, Yifan and Zhao, Minghao and Zhang, Wentao
-          and Zhang, Zijian and Li, Yaoman and King, Irwin},
-  booktitle={KDD 2026 Workshop on AI Agent for Information Retrieval
-             (Agent4IR)},
-  year={2026}
-}
-```
-
 ## License
 
 MIT (research use). See [LICENSE](LICENSE).
-
-## Security note
-
-`jinhu_accessKeys.csv` is gitignored. **Never commit AWS credentials.**
-If you have already exposed a key, rotate it in the AWS IAM console
-immediately.

@@ -41,3 +41,6 @@ image/
 # arXiv upload build artefacts (duplicate of Agent4IR_KDD2026/)
 arxiv_submission/
 arxiv_submission.tar.gz
+
+# Obsolete output dir (current analysis writes directly into Agent4IR_KDD2026/)
+results/

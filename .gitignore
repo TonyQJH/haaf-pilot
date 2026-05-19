@@ -32,3 +32,8 @@ sandbox/*.tmp
 *.synctex.gz
 *.lof
 *.lot
+
+# Internal-only notes (never commit)
+review.md
+new_venue.md
+image/

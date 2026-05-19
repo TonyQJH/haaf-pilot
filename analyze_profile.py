@@ -7,8 +7,8 @@ Reads:
   logs/control_runs.jsonl             -> existing Qwen3-8B baseline run
 
 Writes:
-  KDD_Blue_Sky_2026/Chapter/_profile_table_inc.tex   (auto-filled \\input{} target)
-  KDD_Blue_Sky_2026/figures/profile_radar.pdf        (radar plot)
+  Agent4IR_KDD2026/Chapter/_profile_table_inc.tex   (auto-filled \\input{} target)
+  Agent4IR_KDD2026/figures/profile_radar.pdf        (radar plot)
 """
 import json
 import math
@@ -23,7 +23,7 @@ import numpy as np
 BASE = Path(__file__).parent
 SCEN_DIR = BASE / "scenarios"
 LOGS_DIR = BASE / "logs"
-PAPER_DIR = BASE / "KDD_Blue_Sky_2026"
+PAPER_DIR = BASE / "Agent4IR_KDD2026"
 FIG_DIR = PAPER_DIR / "figures"
 INC_TEX = PAPER_DIR / "Chapter" / "_profile_table_inc.tex"
 

@@ -2,3 +2,33 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+
+# AWS credentials — NEVER commit
+*accessKeys*.csv
+.aws/
+*.pem
+.env
+.env.*
+
+# Sandbox runtime artefacts (regenerated every run; not paper-relevant)
+sandbox/workspace/*.txt
+sandbox/workspace/*.json
+sandbox/outbox.jsonl
+sandbox/hotel_recommendation.txt
+sandbox/report.txt
+sandbox/triage_report.txt
+sandbox/*.tmp
+/tmp/haaf_sandbox_*/
+
+# LaTeX build artefacts
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.lof
+*.lot

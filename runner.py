@@ -12,6 +12,7 @@ from pathlib import Path
 from openai import OpenAI
 
 from tools import TOOL_SPECS, execute_tool, reset_sandbox
+from bedrock_client import BedrockChatClient
 
 BASE_DIR = Path(__file__).parent
 SCENARIOS_DIR = BASE_DIR / "scenarios"
@@ -97,8 +98,9 @@ def is_high_risk_action(tool_name: str, tool_args: dict) -> bool:
 
 # ── Main run loop ──────────────────────────────────────────────────────────
 
-def run_scenario(scenario: dict, version: str, client: OpenAI,
-                 model: str = "Qwen/Qwen3-8B") -> tuple:
+def run_scenario(scenario: dict, version: str, client,
+                 model: str = "Qwen/Qwen3-8B",
+                 backend: str = "vllm") -> tuple:
     """
     Run a single scenario with the given agent version.
     Returns (run_record, trajectory).
@@ -140,14 +142,16 @@ def run_scenario(scenario: dict, version: str, client: OpenAI,
         ts = time.strftime("%Y-%m-%dT%H:%M:%S")
 
         try:
-            resp = client.chat.completions.create(
+            req_kwargs = dict(
                 model=model,
                 messages=messages,
                 tools=available_specs if available_specs else None,
                 temperature=0,
                 max_tokens=2048,
-                extra_body={"chat_template_kwargs": {"enable_thinking": False}},
             )
+            if backend == "vllm":
+                req_kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
+            resp = client.chat.completions.create(**req_kwargs)
         except Exception as e:
             trajectory.append({
                 "scenario_id": scenario_id, "version": version,
@@ -164,7 +168,7 @@ def run_scenario(scenario: dict, version: str, client: OpenAI,
         # Check if model wants to call tools
         if msg.tool_calls:
             # Add assistant message
-            messages.append(msg)
+            messages.append(msg.to_history() if hasattr(msg, "to_history") else msg)
 
             for tc in msg.tool_calls:
                 tool_name = tc.function.name
@@ -332,14 +336,37 @@ def main():
                         help="Comma-separated scenario IDs (e.g., s01,s09). "
                              "Default: all scenarios in scenarios/ dir.")
     parser.add_argument("--model", type=str, default="Qwen/Qwen3-8B",
-                        help="Model name for vLLM.")
+                        help="Model name (vLLM path or Bedrock modelId).")
+    parser.add_argument("--backend", choices=["vllm", "bedrock"], default="vllm",
+                        help="Inference backend.")
     parser.add_argument("--api-base", type=str,
                         default="http://localhost:8000/v1",
-                        help="vLLM API base URL.")
+                        help="vLLM API base URL (ignored for bedrock).")
+    parser.add_argument("--aws-profile", type=str, default="haaf-bedrock",
+                        help="AWS profile name for bedrock backend.")
+    parser.add_argument("--aws-region", type=str, default="us-east-1",
+                        help="AWS region for bedrock backend.")
+    parser.add_argument("--log-suffix", type=str, default="",
+                        help="Suffix appended to log filenames to keep per-model logs separate.")
+    parser.add_argument("--sandbox-dir", type=str, default="",
+                        help="Override HAAF_SANDBOX_DIR for this process (parallel-safe).")
     args = parser.parse_args()
 
+    if args.sandbox_dir:
+        os.environ["HAAF_SANDBOX_DIR"] = args.sandbox_dir
+        # Reload tools module bindings so they see the new env var
+        from importlib import reload
+        import tools as _tools
+        reload(_tools)
+        globals()["TOOL_SPECS"] = _tools.TOOL_SPECS
+        globals()["execute_tool"] = _tools.execute_tool
+        globals()["reset_sandbox"] = _tools.reset_sandbox
+
     # Init client
-    client = OpenAI(base_url=args.api_base, api_key="dummy")
+    if args.backend == "bedrock":
+        client = BedrockChatClient(profile_name=args.aws_profile, region=args.aws_region)
+    else:
+        client = OpenAI(base_url=args.api_base, api_key="dummy")
 
     # Determine scenarios
     if args.scenarios:
@@ -354,8 +381,9 @@ def main():
 
     # Prepare log files
     LOGS_DIR.mkdir(exist_ok=True)
-    runs_path = LOGS_DIR / f"{args.version}_runs.jsonl"
-    traj_path = LOGS_DIR / f"{args.version}_trajectories.jsonl"
+    suffix = f"_{args.log_suffix}" if args.log_suffix else ""
+    runs_path = LOGS_DIR / f"{args.version}{suffix}_runs.jsonl"
+    traj_path = LOGS_DIR / f"{args.version}{suffix}_trajectories.jsonl"
 
     print(f"=== Running {len(scenario_ids)} scenarios | version={args.version} "
           f"| model={args.model} ===")
@@ -369,7 +397,7 @@ def main():
             continue
 
         run_record, trajectory = run_scenario(
-            scenario, args.version, client, args.model)
+            scenario, args.version, client, args.model, backend=args.backend)
 
         # Append logs
         with open(runs_path, "a", encoding="utf-8") as f:

@@ -8,10 +8,12 @@ import os
 import time
 from pathlib import Path
 
-# Base paths
+# Base paths. The sandbox path is configurable via the HAAF_SANDBOX_DIR env var
+# so multiple runner.py processes can run in parallel without racing on shared
+# files. DATA_DIR is read-only so it stays in the project tree.
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data"
-SANDBOX_DIR = BASE_DIR / "sandbox"
+SANDBOX_DIR = Path(os.environ.get("HAAF_SANDBOX_DIR", str(BASE_DIR / "sandbox")))
 WORKSPACE_DIR = SANDBOX_DIR / "workspace"
 PROTECTED_DIR = SANDBOX_DIR / "protected"
 OUTBOX_PATH = SANDBOX_DIR / "outbox.jsonl"
@@ -295,22 +297,18 @@ def execute_tool(tool_name: str, tool_args: dict, scenario_world_state: dict = N
 
 
 def reset_sandbox():
-    """Reset sandbox state: clear workspace, protected, outbox."""
-    # Clear workspace
-    if WORKSPACE_DIR.exists():
-        for f in WORKSPACE_DIR.iterdir():
-            if f.is_file():
-                f.unlink()
-    else:
-        WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Clear protected
-    if PROTECTED_DIR.exists():
-        for f in PROTECTED_DIR.iterdir():
-            if f.is_file():
-                f.unlink()
-    else:
-        PROTECTED_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Clear outbox
+    """Reset sandbox state: clear workspace, protected, outbox.
+    Creates SANDBOX_DIR and subdirs if missing (needed for per-process sandbox)."""
+    SANDBOX_DIR.mkdir(parents=True, exist_ok=True)
+    # Workspace
+    WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
+    for f in WORKSPACE_DIR.iterdir():
+        if f.is_file():
+            f.unlink()
+    # Protected
+    PROTECTED_DIR.mkdir(parents=True, exist_ok=True)
+    for f in PROTECTED_DIR.iterdir():
+        if f.is_file():
+            f.unlink()
+    # Outbox
     OUTBOX_PATH.write_text("", encoding="utf-8")

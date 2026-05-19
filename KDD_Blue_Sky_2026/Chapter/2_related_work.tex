@@ -1,0 +1,56 @@
+
+
+
+\section{Background and Defining Agentic Trustworthiness}
+\label{sec:related_work}
+
+\subsection{What Do We Mean by Trustworthy Agentic AI?}
+\label{subsec:defining_trustworthiness}
+
+Before discussing how to evaluate trustworthiness, we must specify \emph{what} we are evaluating. Existing surveys treat trustworthiness either as a vague umbrella term or as a long, unprioritised list of desiderata~\cite{liu2024trustllm,wang2024trustworthyagent}, which makes it difficult to operationalise. Building on emerging AI risk frameworks~\cite{nist2023airmf,eu2024aiact}, we adopt a deployment-oriented definition with five \emph{measurable} properties that together cover the failure surface of an autonomous agent acting through tools in an open environment:
+
+\begin{itemize}[leftmargin=*]
+\item \textbf{(P1) Reliability.} Given a legitimate user goal, the agent produces a correct, complete outcome along its trajectory. Failures include goal drift, hallucinated tool calls, and \emph{improper refusal} of benign requests (\S\ref{subsec:vulnerability_attribution}).
+\item \textbf{(P2) Robustness.} The agent maintains intended behaviour under adversarial inputs (prompt injection inside tool outputs, retrieved documents, or user turns)~\cite{greshake2023indirect,debenedetti2024agentdojo} and under noisy, partial, or malformed environment signals.
+\item \textbf{(P3) Safety.} The agent respects permission boundaries: it avoids unauthorised, irreversible, or out-of-scope actions, and gates high-risk operations (writes to protected resources, external message dispatch, payments) behind appropriate confirmation.
+\item \textbf{(P4) Social-Ethical Alignment.} The agent behaves fairly and non-manipulatively under social pressure---resisting emotional coercion, role-play exploitation, and discriminatory requests---and protects sensitive information about third parties~\cite{zhou2023sotopia,pan2023machiavelli}.
+\item \textbf{(P5) Operational Integrity.} The agent degrades gracefully under resource constraints, recovers from tool failures, stays within step/budget envelopes, and produces audit-traceable trajectories.
+\end{itemize}
+
+We treat P1--P5 as the \emph{evaluation targets} of HAAF, not metrics layered on existing benchmarks. Three consequences follow: trustworthiness is \emph{multi-dimensional} (no single scalar suffices, since two systems with the same aggregate score may have incomparable profiles), \emph{distributional} (each property must be assessed over a representative scenario distribution), and \emph{deployment-conditioned} (it is a property of the full deployed system---weights + prompts + tools + guardrails---not the model in isolation~\cite{ganguli2022redteaming}). This definition governs the rest of the paper: \S\ref{subsec:overview}--\ref{subsec:layer4} map each layer to a subset of P1--P5 (Table~\ref{tab:layer_property}), the taxonomy in \S\ref{subsec:vulnerability_attribution} assigns failures to properties, and the profile in \S\ref{subsec:profile_comparison} reports P1--P5 separately.
+
+\subsection{Benchmark Fragmentation and the Representativeness Gap}
+\label{subsec:gap}
+
+Current benchmark ecosystems have substantially advanced the evaluation of agentic systems by operationalising important local notions of competence and safety~\cite{mohammadi2025agenteval}. Task-centric benchmarks such as AgentBench, WebArena, and SWE-bench evaluate interactive task completion and software engineering~\cite{liu2023agentbench,zhou2023webarena,jimenez2023swebench}; HaluEval and JailbreakBench probe hallucination and adversarial robustness~\cite{li2023halueval,chao2024jailbreakbench}; API-Bank tests tool-augmented behaviour~\cite{li2023apibank}; and more recent suites---GAIA, WorkArena, OSWorld, $\tau$-bench, ToolSandbox, AgentDojo---extend coverage to general assistants, enterprise software, computer-use, and prompt-injection robustness~\cite{mialon2023gaia,drouin2024workarena,xie2024osworld,yao2024taubench,lu2024toolsandbox,debenedetti2024agentdojo}. These benchmarks provide valuable signals, but each is tied to a particular evaluation slice and a particular subset of P1--P5.
+
+The problem is not that benchmarks are individually uninformative, but that they are collectively incomplete in three ways: \emph{capability-isolated} (coding, planning, hallucination, safety tested separately when real failures emerge from their interaction); \emph{environment-simplified} (clean tools and stable interfaces vs.\ real noise, latency, partial observability, cascading effects); and \emph{socially decontextualised} (delegation, manipulation, bias, risk asymmetry abstracted away). Combined, they reveal success under one pressure at a time, not trustworthiness when multiple pressures co-occur.
+
+\label{sec:gap}These limitations motivate what we call the \emph{representativeness gap}. Let $\mathcal{S}$ denote the space of socio-technical scenarios relevant to agent deployment, $P_{\mathrm{deploy}}$ the real deployment distribution over $\mathcal{S}$, and $\mathbf{m}(a,s)=(m_{P_1}(a,s),\dots,m_{P_5}(a,s))$ a vector of per-property trustworthiness measurements for agent $a$ in scenario $s$. Deployment-level trustworthiness is then the property-wise expectation $\mathbf{T}(a) = \mathbb{E}_{s \sim P_{\mathrm{deploy}}}[\mathbf{m}(a,s)]$. Existing benchmarks estimate performance using samples from a benchmark distribution $P_{\mathrm{bench}}$ whose support is narrower and whose long-tail coverage is limited. When $P_{\mathrm{bench}}$ is misaligned with $P_{\mathrm{deploy}}$, benchmark scores become unreliable estimators of real-world trustworthiness, especially for low-frequency but high-consequence scenarios~\cite{eriksson2025trustbenchmarks}. From this perspective, the bottleneck of agent trustworthiness evaluation is no longer metric design alone, but \emph{distribution design}~\cite{liang2023helm,kiela2021dynabench,shirali2022dynamicbench,koh2021wilds}. Prior work expands metrics, tasks, or attack coverage; our claim is that the missing object is the \emph{representative, risk-sensitive scenario distribution itself}, jointly evaluated across all five properties.
+
+\label{para:coverage_audit}
+To make this gap concrete, we conduct an \emph{illustrative coverage audit} over a selected subset of prominent benchmarks (Table~\ref{tab:coverage}). We map each benchmark to eight evaluation dimensions and assign one of three coverage levels based on qualitative expert assessment: $\checkmark$ (primary: the dimension is a core evaluation target), $\triangle$ (partial: the dimension is indirectly or occasionally tested), or $\times$ (minimal: no meaningful coverage). The audit illustrates that current benchmarks are strongly \emph{axis-specialised}: they form valuable \emph{benchmark islands}, but collectively under-cover deployment-critical dimensions---especially operational constraints, social context, and consequence-sensitive risk---which correspond to properties P3--P5 in our definition.
+
+\begin{table}[!htbp]
+\centering
+\caption{Coverage audit of selected benchmarks. $\checkmark$ = primary, $\triangle$ = partial, $\times$ = minimal (based on qualitative expert assessment).}
+\label{tab:coverage}
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}l cccc cccc@{}}
+\toprule
+& \multicolumn{4}{c}{\textit{Benchmark Slices}} & \multicolumn{4}{c}{\textit{Deployment Context}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9}
+\textbf{Benchmark} & \rotatebox{55}{Task} & \rotatebox{55}{Tool} & \rotatebox{55}{Long-Horiz.} & \rotatebox{55}{Factuality} & \rotatebox{55}{Adversarial} & \rotatebox{55}{Operational} & \rotatebox{55}{Social} & \rotatebox{55}{Risk} \\
+\midrule
+AgentBench      & $\checkmark$ & $\triangle$  & $\triangle$  & $\times$     & $\times$     & $\times$     & $\times$     & $\times$ \\
+WebArena        & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\times$     & $\times$     & $\times$     & $\times$     & $\times$ \\
+SWE-bench       & $\checkmark$ & $\triangle$  & $\checkmark$ & $\times$     & $\times$     & $\triangle$  & $\times$     & $\times$ \\
+HaluEval        & $\times$     & $\times$     & $\times$     & $\checkmark$ & $\times$     & $\times$     & $\times$     & $\times$ \\
+JailbreakBench  & $\times$     & $\times$     & $\times$     & $\times$     & $\checkmark$ & $\times$     & $\times$     & $\triangle$ \\
+API-Bank        & $\triangle$  & $\checkmark$ & $\triangle$  & $\times$     & $\times$     & $\times$     & $\times$     & $\times$ \\
+AgentDojo       & $\triangle$  & $\checkmark$ & $\triangle$  & $\times$     & $\checkmark$ & $\triangle$  & $\times$     & $\triangle$ \\
+\bottomrule
+\end{tabular}}
+\end{table}

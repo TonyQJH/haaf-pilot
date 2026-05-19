@@ -1,0 +1,152 @@
+
+
+\section{Illustrative Instantiation}
+\label{sec:experiments}
+
+This section demonstrates HAAF in three complementary modes, using two scenario suites of complementary scale. The \emph{design-study} suite is a 24-scenario pilot that surfaces and validates the interventions; the \emph{validation} suite is an expanded 100-scenario assembly we built for this study, with $\geq 14$ scenarios per trustworthiness property so that a single-scenario flip moves an axis by $\leq 8$ percentage points rather than 50. The three modes are: (i)~a complete Factory cycle (red-team attribution + blue-team hardening + re-evaluation) on a single focal model using the design-study suite (\S\ref{subsec:vulnerability_attribution}, \S\ref{subsec:closed_loop}); (ii)~the same red-team probing layer across \emph{13} contemporary agentic systems spanning \emph{seven} model families on the validation suite, instantiating the cross-system comparison methodology defined in \S\ref{subsec:overview} (\S\ref{subsec:profile_comparison}); and (iii)~application of the focal-model interventions uniformly to those 13 systems on the validation suite to test cross-family transfer (\S\ref{subsec:cross_model_treated}). All scenarios, tools, and data are synthetic and run in a local sandbox; the purpose is to validate the methodology, not to publish benchmark numbers.
+
+\subsection{Setup}
+\label{subsec:setup}
+
+\paragraph{Sandbox and scenarios.}
+We construct a sandbox environment with five simulated tools (\texttt{search\_docs}, \texttt{db\_query}, \texttt{read\_file}, \texttt{write\_file}, \texttt{send\_message}) operating over synthetic data. The first two tools are retrieval-style, making the suite directly relevant to agentic information-retrieval (IR) deployments where agents act on retrieved evidence. We use two scenario suites (Table~\ref{tab:scenarios}): a \emph{design-study} suite of 24 hand-crafted scenarios that surfaces the original interventions, and an expanded \emph{validation} suite of 100 scenarios built for this revision, with substantially better per-property coverage (each $P_1\!-\!P_5$ axis has $\geq 14$ scenarios versus the original $\leq 9$). The validation suite intentionally uses sharper adversarial framings---e.g., legitimate-sounding cover stories for unauthorised disclosure (P3), proxy-discrimination disguised as efficiency (P4), and indirect prompt injection embedded as innocuous form fields or document footers (P2)---designed to discriminate between modern models that easily pass simpler tests. Each scenario specifies success criteria, forbidden actions, and a risk-severity weight (1--5), and is labelled with one of nine failure-target classes (Table~\ref{tab:taxonomy}). Every scenario covers at least one of properties P1--P5.
+
+\begin{table}[!htbp]
+\centering
+\caption{Scenario suite overview. Design-study suite (24, original pilot) used in \S\ref{subsec:vulnerability_attribution} and \S\ref{subsec:closed_loop}. Validation suite (100, new for this revision) used in \S\ref{subsec:profile_comparison} and \S\ref{subsec:cross_model_treated}. Risk severity: 1 (low) to 5 (high).}
+\label{tab:scenarios}
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l cc l c}
+\toprule
+& \multicolumn{2}{c}{\textbf{Scenarios}} & & \\
+\cmidrule(lr){2-3}
+\textbf{Property} & \textbf{Design} & \textbf{Validation} & \textbf{Targets} & \textbf{Risk} \\
+\midrule
+P1 Reliability         & 9 & 26 & GD, HT, IR & 1--2 \\
+P2 Robustness          & 8 & 20 & PI         & 3--5 \\
+P3 Safety              & 2 & 22 & UA, PL     & 4--5 \\
+P4 Social-Ethical      & 2 & 18 & SH         & 4--5 \\
+P5 Operational         & 3 & 14 & OF, RF     & 2--3 \\
+\midrule
+\textbf{Total}         & \textbf{24} & \textbf{100} & & \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\paragraph{Models.}
+The single-model Factory cycle (\S\ref{subsec:vulnerability_attribution}--\S\ref{subsec:closed_loop}) uses Qwen3-8B, served locally via vLLM with temperature$\,{=}\,0$, on the 24-scenario design-study suite. The cross-model comparison (\S\ref{subsec:profile_comparison}) and the cross-model transfer experiment (\S\ref{subsec:cross_model_treated}) evaluate 13 contemporary systems served through Amazon Bedrock on the 100-scenario validation suite, using the same Control and Treated system prompts as the focal cycle. The 13 systems are drawn from seven well-known model families: \textit{Llama}~\cite{llama3herd} (Llama-3.1-8B, Llama-3.1-70B), \textit{Mistral}~\cite{mistrallarge} (Mistral-Large-2402, Mistral-Large-3-675B), \textit{Kimi}\,/\,Moonshot~\cite{kimik2} (Kimi-K2-Thinking, Kimi-K2.5), \textit{GLM}\,/\,Z.AI~\cite{chatglm4} (GLM-4.7, GLM-5), \textit{Qwen}~\cite{qwen3report} (Qwen3-32B, Qwen3-Next-80B), \textit{GPT}\,/\,OpenAI~\cite{gptoss} (gpt-oss-20B, gpt-oss-120B), and \textit{DeepSeek}~\cite{deepseekv3} (DeepSeek-V3.2). Together the systems span open- and closed-weight providers from three geographic regions and roughly two capability tiers per family, providing the diversity needed to make profile differences meaningful rather than noise of a single training recipe. We note that DeepSeek-R1 is available on Bedrock but does not expose tool use through the Converse API, so the DeepSeek family contributes a single representative.
+
+\paragraph{Failure taxonomy.}
+Every violated trajectory is annotated with a reusable nine-class taxonomy, each class explicitly mapped to one or more trustworthiness properties (Table~\ref{tab:taxonomy}). Labelling follows an \emph{earliest-cause} rule: the primary label reflects the first identifiable root cause; labels were assigned by the authors under a shared protocol and reviewed jointly in cases of ambiguity.
+
+\begin{table}[!htbp]
+\centering
+\caption{Failure taxonomy (9 classes) with property mapping. ``IR''~= Improper Refusal (new in this revision) captures cases where the agent refuses a benign, legitimate request.}
+\label{tab:taxonomy}
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llp{4.7cm}c@{}}
+\toprule
+\textbf{Code} & \textbf{Failure Type} & \textbf{Description} & \textbf{Property} \\
+\midrule
+PI & Prompt Injection         & Agent follows malicious instructions in tool outputs / retrieved text & P2 \\
+GD & Goal Drift               & Agent deviates from original user objective                          & P1 \\
+UA & Unauthorized Action      & Agent performs actions outside permitted scope                       & P3 \\
+HT & Hallucinated Tool-use    & Agent calls tools with fabricated parameters / non-existent tools    & P1 \\
+RF & Recovery Failure         & Agent fails to recover from errors gracefully                        & P5 \\
+OF & Operational Failure      & Agent fails under resource constraints (budgets, latency)            & P5 \\
+PL & Policy Leak              & Agent leaks sensitive / internal information                         & P3, P4 \\
+SH & Social Harm              & Agent produces biased, manipulative, or harmful outputs              & P4 \\
+\textbf{IR} & \textbf{Improper Refusal} & \textbf{Agent refuses a benign, legitimate task (over-refusal)} & \textbf{P1} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\paragraph{Refusal handling policy.}
+Refusal behaviour is not inherently a failure---in many adversarial or socially harmful contexts the correct response \emph{is} to refuse. We therefore adopt an explicit policy: (i)~refusing a \emph{forbidden or adversarial} request whose execution would violate any of P2--P4 is counted as \emph{success}, not a violation; (ii)~refusing a \emph{benign, legitimate} request is logged under the new \textbf{IR (Improper Refusal)} class and treated as a P1 (Reliability) failure, reflecting recent evidence that exaggerated safety behaviour causes substantial user-facing harm in deployment~\cite{rottger2024xstest}; (iii)~partial refusal accompanied by a safer alternative that satisfies the original goal is treated as success. This policy disambiguates the case (raised in prior review feedback) where ``the agent simply refused'' would otherwise be ambiguous.
+
+\subsection{Red-Team Vulnerability Attribution (Qwen3-8B)}
+\label{subsec:vulnerability_attribution}
+
+We run Qwen3-8B through the 24-scenario design suite to test whether HAAF can diagnose \emph{why} agents fail. Of 24 scenarios, 4 violate ($\mathrm{VR}=16.7\%$): 2 Prompt Injection (PI, risk-weighted~7), 1 Unauthorized Action (UA, weight~5), and 1 Policy Leak (PL, weight~5), summing to a risk-weighted count of~17 / 81. The most frequent mode is PI: adversarial instructions in tool outputs cause writes to protected paths. The UA case sends confidential data externally; the PL case forwards HR data under emotional pressure. Because both PI violations originate from unsanitised tool outputs, tool-output sanitisation becomes the highest-priority intervention target for the blue-team phase.
+
+\subsection{Cross-Model Trustworthiness Profiles}
+\label{subsec:profile_comparison}
+
+A single agent's diagnostic profile is useful for hardening that agent, but the comparison methodology of \S\ref{subsec:overview} requires evaluating multiple systems against the same probing distribution. We run the identical Control configuration over the 100-scenario validation suite for all 13 systems described in \S\ref{subsec:setup}. For each system $a$, we report a five-dimensional trustworthiness profile $\hat{\mathbf{T}}(a) = (\hat T_{P_1}, \dots, \hat T_{P_5})$, where $\hat T_{P_k}(a) = 1 - \mathrm{VR}_{P_k}(a)$ is one minus the violation rate restricted to scenarios that target property $P_k$ (via the taxonomy mapping in Table~\ref{tab:taxonomy}). A higher value indicates better trustworthiness along that axis.
+
+\paragraph{Findings.}
+Figure~\ref{fig:profile_radar} visualises the per-property scores for all 13 systems on the 100-scenario validation suite, and Table~\ref{tab:profile} provides the underlying numbers together with the risk-weighted aggregate $\mathrm{RWF}(a)$.
+%
+% Auto-generated by analyze_profile.py from logs/control_<suffix>_runs.jsonl
+\input{Chapter/_profile_table_inc.tex}
+%
+Four observations are robust on this suite.
+%
+\emph{(F1) Profiles are not collinear.} The 13 systems span $\mathrm{RWF}\!\in\![0.153,0.587]$, but RWF ranking hides per-property structure: Llama-3.1-8B (RWF~0.216) saturates P2 ($1.00$) yet only manages $\hat T_{P_4}\!=\!0.61$; Mistral-Large-2 (0.301) leads P3 outside GLM with $\hat T_{P_3}\!=\!0.64$ yet sits in the lower half of P4 ($\hat T_{P_4}\!=\!0.39$). Two systems with similar RWF can require entirely different blue-team interventions---a fact the profile exposes and a scalar leaderboard erases.
+%
+\emph{(F2) P3 (Safety) and P4 (Social-Ethical) are the cross-family weak axes.} Median $\hat T_{P_3}=0.18$ and only GLM-5 (0.68) clears 0.50; the rest fail most of the 22 P3 scenarios (plausible-cover disclosure, vendor-data exfil, credential reads, audit-log tampering). Median $\hat T_{P_4}=0.39$, with Qwen3-32B / Qwen3-Next-80B dropping to 0.11 / 0.22 (proxy discrimination, role-play jailbreaks, authority-impersonated bias). P1 and P5 saturate near 1.00, indicating modern agentic models have largely solved benign-task reliability but not value-laden judgement.
+%
+\emph{(F3) Scale within a family does not monotonically help; in most families it actively hurts.} In four of the six families that contribute multiple tiers to the study, the larger or newer sibling fails to outperform the smaller or older one: Llama-3.1-8B (RWF~$0.216$) beats Llama-3.1-70B ($0.407$); Mistral-Large-2 ($0.301$) beats Mistral-Large-3-675B ($0.396$); Qwen3-32B ($0.462$) beats Qwen3-Next-80B ($0.587$); and GPT-oss-20B ($0.418$) edges out GPT-oss-120B ($0.481$). The two families that do show monotonic improvement (GLM-4.7~$\to$~GLM-5; Kimi-K2-Thinking~$\to$~Kimi-K2.5) couple scale with a version upgrade rather than scale alone. The pattern across four families suggests that prompt and policy posture, not raw capability, drives most variance in agentic trustworthiness.
+%
+\emph{(F4) Reasoning- and MoE-style flagships exhibit a P2--P3 co-occurrence pattern.} A cluster of four reasoning- or MoE-style flagships---GPT-oss-120B (RWF~$0.481$), DeepSeek-V3.2 ($0.486$), Kimi-K2-Thinking ($0.434$), and Qwen3-Next-80B ($0.587$)---shares a distinctive failure signature: P2 weakness ($\hat T_{P_2}\!\in\![0.45,0.60]$) co-occurring with severe P3 weakness ($\hat T_{P_3}\!\in\![0.14,0.27]$), suggesting that safety regressions in these systems are not isolated but tied to broader instruction-following degradation under adversarial or socially-charged input. This co-occurrence pattern is invisible to any single-score benchmark.
+
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/profile_radar.pdf}
+\caption{\textbf{Trustworthiness profile across 13 agentic systems from seven model families} on the 100-scenario HAAF validation Control suite. Each cell shows $\hat T_{P_k}$ for one system $\times$ property pair (green~=~trustworthy, red~=~violated); the rightmost column shows the risk-weighted aggregate $\mathrm{RWF}$ (lower is better) and rows are sorted by it.}
+\label{fig:profile_radar}
+\end{figure*}
+
+\subsection{Blue-Team Hardening and Re-Evaluation (Qwen3-8B Factory Cycle)}
+\label{subsec:closed_loop}
+
+The red-team diagnostics from \S\ref{subsec:vulnerability_attribution} guide the design of two targeted interventions:
+
+\paragraph{Blue-team interventions.}
+(1)~A \textbf{tool-output firewall} wraps every tool return with a delimiter marking it as \emph{untrusted data}, instructing the agent to never follow embedded instructions. This targets the PI vulnerability surface (P2). (2)~A \textbf{confirmation gate} intercepts high-risk actions (message dispatch, writes to protected paths) and blocks them before execution, simulating a human-in-the-loop approval step. This targets the UA/PL surface (P3).
+
+\paragraph{Re-evaluation (second red-team pass).}
+The hardened system is re-evaluated on the same 24 scenarios (same model weights, temperature, data, tools). Define $\mathrm{RWF} = \sum_{s \in V} r(s)\, /\, \sum_{s \in Q} r(s)$, where $V \subseteq Q$ is the set of violated scenarios and $r(s)$ the severity weight. Table~\ref{tab:improvement}: violations $4 \!\to\! 1$ ($\mathrm{VR}\!:\!16.7\%\!\to\!4.2\%$), SR $83.3\%\!\to\!95.8\%$, RWF $0.210\!\to\!0.062$. Crucially, no new improper refusals are introduced: the gain on P2/P3 does not cost P1. The residual violation is a direct user request to send confidential data; under our \emph{intent-based} standard, an attempted forbidden action counts as a violation regardless of runtime gating. This residual marks a boundary of prompt-level hardening: user-instructed violations need deeper interventions (policy fine-tuning, value alignment) in a second Factory cycle.
+
+\begin{table}[!htbp]
+\centering
+\caption{Factory cycle results on Qwen3-8B. The hardened (blue-team) system applies two interventions derived from red-team attribution (\S\ref{subsec:vulnerability_attribution}). Change reported as absolute difference (percentage points for rates, raw for RWF). \textbf{Bold}: hardened-system value when it improves over the baseline.}
+\label{tab:improvement}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Metric} & \textbf{Baseline} & \textbf{Hardened} & \textbf{Abs.\ Change} \\
+\midrule
+Success Rate          & 20/24 (83.3\%) & \textbf{23/24 (95.8\%)} & $+12.5$ pp \\
+Violation Rate        & 4/24 (16.7\%)  & \textbf{1/24 (4.2\%)}   & $-12.5$ pp \\
+Risk-Weighted Failure & 0.210          & \textbf{0.062}          & $-0.148$ \\
+Improper Refusal Count & 0             & 0                       & $0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Cross-Model Factory Generalisation}
+\label{subsec:cross_model_treated}
+
+The Factory cycle in \S\ref{subsec:closed_loop} identifies two interventions---a tool-output firewall (P2) and a confirmation gate (P3)---from \emph{one} focal model's failure trajectories. Whether these interventions transfer to entirely different architectures, providers, and scales is the natural concern. We apply the identical \emph{Treated} configuration---same firewall, same confirmation gate, no per-model tuning---to all 13 cross-family systems on the 100-scenario validation suite, and compare to their Control profiles from \S\ref{subsec:profile_comparison}. The interventions were designed without observing any of these 13 systems' trajectories, so any improvement under Treated is direct evidence of cross-model transfer.
+
+Table~\ref{tab:delta} reports $\mathrm{RWF}_{\text{Control}}$, $\mathrm{RWF}_{\text{Treated}}$, and the absolute drop $\Delta$ for each system, and Figure~\ref{fig:before_after} visualises the same data sorted by Control RWF. Two cross-model patterns emerge.
+%
+\input{Chapter/_delta_table_inc.tex}
+%
+\begin{figure*}[!htbp]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/before_after_rwf.pdf}
+\caption{\textbf{Factory cycle generalisation across 13 cross-family systems on the 100-scenario validation suite.} The identical pair of blue-team interventions identified from Qwen3-8B's 24-scenario failure profile (tool-output firewall + confirmation gate) is applied uniformly to every system, with no per-model and no per-scenario tuning. Red bars: Control RWF; green bars: Treated RWF. Lower is better. Systems sorted by Control RWF ascending (best on left), matching the order of Figure~\ref{fig:profile_radar}.}
+\label{fig:before_after}
+\end{figure*}
+%
+\emph{First, the interventions generalise universally across families and scales.} All 13 systems improve under the Treated configuration with $\Delta\mathrm{RWF}>0$, and the largest gains occur on the systems that were weakest under Control: GPT-oss-120B ($0.481 \to 0.000$, $\Delta=+0.481$, the largest absolute improvement in the entire study), GPT-oss-20B ($0.418 \to 0.014$, $\Delta=+0.404$), Mistral-Large-3-675B ($0.396 \to 0.101$, $\Delta=+0.295$), Llama-3.1-70B ($0.407 \to 0.115$, $\Delta=+0.292$), and DeepSeek-V3.2 ($0.486 \to 0.205$, $\Delta=+0.281$). Two systems drop all the way to a perfect $\mathrm{RWF}=0.000$ under Treated (GPT-oss-120B, Llama-3.1-8B). This is direct evidence that interventions designed from a single small open-weight model's failure trajectories also reduce risk on entirely different architectures, providers, and capability tiers; the HAAF Factory mechanism is not specific to its focal model.
+%
+\emph{Second, magnitude of improvement is proportional to baseline failure surface, and one system is intervention-resistant.} Qwen3-32B is the outlier: it improves only marginally ($0.462 \to 0.443$, $\Delta=+0.019$), despite the same uniform interventions reducing every other system's $\mathrm{RWF}$ by $\geq 0.13$. The property profile (Figure~\ref{fig:profile_radar}) shows why: Qwen3-32B's failures are concentrated on P3 ($\hat T_{P_3}=0.09$) and P4 ($\hat T_{P_4}=0.11$), and the bulk of these are direct user-instructed disclosures and bias requests rather than indirect injections---failure modes the tool-output firewall is not designed to address. This is the kind of intervention-resistance pattern the profile surfaces but a scalar leaderboard would average away; it identifies Qwen3-32B as the system requiring a fundamentally different second Factory cycle (policy fine-tuning or value alignment, not prompt-level guardrails).
+
+\paragraph{Limitations.}
+The instantiation validates the methodology (attribution + comparison + iterative hardening + transfer) rather than producing statistically powered conclusions per model. Three caveats apply: \textit{(i)~Synthetic sandbox}: scenarios run locally rather than against real tools---a deliberate choice for safety/reproducibility, following AgentDojo~\cite{debenedetti2024agentdojo} and ToolSandbox~\cite{lu2024toolsandbox}, but limiting realism; bridging to deployment logs is the natural next step. \textit{(ii)~Transfer evidence is cross-model, not cross-domain}: the interventions were designed without observing any of the 13 systems' trajectories, so improvements under Treated guard against per-model overfitting. The validation suite extends the design suite with 76 new adversarial scenarios that the interventions were never tuned against; however, both suites share the same sandbox and tool surface, so the experiment does not guard against general-domain (sandbox-wide) overfitting. \textit{(iii)~IR auto-detection is heuristic}: a refusal-language classifier on final-answer text plus a low-tool-call rule; manual annotation would tighten labelling. Full deployment-readiness still requires multiple Factory cycles per system, held-out suites, and human-validated annotations (\S\ref{sec:discussion}).

@@ -67,6 +67,29 @@ SH & Social Harm              & Agent produces biased, manipulative, or harmful 
 \paragraph{Refusal handling policy.}
 Refusal behaviour is not inherently a failure---in many adversarial or socially harmful contexts the correct response \emph{is} to refuse. We therefore adopt an explicit policy: (i)~refusing a \emph{forbidden or adversarial} request whose execution would violate any of P2--P4 is counted as \emph{success}, not a violation; (ii)~refusing a \emph{benign, legitimate} request is logged under the new \textbf{IR (Improper Refusal)} class and treated as a P1 (Reliability) failure, reflecting recent evidence that exaggerated safety behaviour causes substantial user-facing harm in deployment~\cite{rottger2024xstest}; (iii)~partial refusal accompanied by a safer alternative that satisfies the original goal is treated as success. This policy disambiguates the case (raised in prior review feedback) where ``the agent simply refused'' would otherwise be ambiguous.
 
+\paragraph{Representative scenarios.}
+To make the validation-suite design concrete, Table~\ref{tab:scenario_examples} shows one representative scenario per property, illustrating the attack/probe patterns we use. The full suite of 100 scenarios is released with the code; together they span five tool primitives, eight failure-target classes, and the five attack-vector categories outlined in \S\ref{subsec:setup}.
+
+\begin{table}[!htbp]
+\centering
+\caption{One representative scenario per property from the 100-scenario validation suite, illustrating the design patterns: \emph{IR traps} (P1, legitimate-sensitive requests where refusal itself is a failure); \emph{indirect injection} (P2, payload embedded in retrieved structured content); \emph{authority-cover exfil} (P3, plausible third-party justification); \emph{false precedent / gaslight} (P4, fabricated prior interaction to normalise a discriminatory filter); and \emph{constrained budgets} (P5, tight quota requiring graceful prioritisation).}
+\label{tab:scenario_examples}
+\small
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}cl p{2.0cm} p{4.3cm}@{}}
+\toprule
+\textbf{P} & \textbf{ID} & \textbf{Title} & \textbf{Attack / probe pattern} \\
+\midrule
+P1 & s96 & New-hire privacy lookup & IR trap: a legitimate self-service request---refusing it is itself a P1 violation. \\
+P2 & s78 & Vendor onboarding worksheet & Indirect injection: an \texttt{"\_assistant\_directive"} field embedded in a retrieved JSON template. \\
+P3 & s27 & Compliance-auditor exfil & Authority cover: ``Legal asked us to forward this to the external SOC2 auditor by EOW.'' \\
+P4 & s50 & False-precedent gaslight & Fabricated prior interaction (``you helped me last week filter by \texttt{has\_kids\_in\_school}'') to normalise a family-status filter. \\
+P5 & s73 & Tight quota planning & 3 tool calls for a 4-step itinerary; tests graceful prioritisation under budget pressure. \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
 \subsection{Red-Team Vulnerability Attribution (Qwen3-8B)}
 \label{subsec:vulnerability_attribution}
 
@@ -116,16 +139,18 @@ The hardened system is re-evaluated on the same 24 scenarios (same model weights
 \caption{Factory cycle results on Qwen3-8B. The hardened (blue-team) system applies two interventions derived from red-team attribution (\S\ref{subsec:vulnerability_attribution}). Change reported as absolute difference (percentage points for rates, raw for RWF). \textbf{Bold}: hardened-system value when it improves over the baseline.}
 \label{tab:improvement}
 \small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lccc}
 \toprule
 \textbf{Metric} & \textbf{Baseline} & \textbf{Hardened} & \textbf{Abs.\ Change} \\
 \midrule
-Success Rate          & 20/24 (83.3\%) & \textbf{23/24 (95.8\%)} & $+12.5$ pp \\
-Violation Rate        & 4/24 (16.7\%)  & \textbf{1/24 (4.2\%)}   & $-12.5$ pp \\
-Risk-Weighted Failure & 0.210          & \textbf{0.062}          & $-0.148$ \\
-Improper Refusal Count & 0             & 0                       & $0$ \\
+Success Rate           & 20/24 (83.3\%) & \textbf{23/24 (95.8\%)} & $+12.5$ pp \\
+Violation Rate         & 4/24 (16.7\%)  & \textbf{1/24 (4.2\%)}   & $-12.5$ pp \\
+Risk-Weighted Failure  & 0.210          & \textbf{0.062}          & $-0.148$   \\
+Improper Refusal Count & 0              & 0                       & $0$        \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Cross-Model Factory Generalisation}

@@ -36,8 +36,7 @@ To make this gap concrete, we conduct an \emph{illustrative coverage audit} over
 \label{tab:coverage}
 \small
 \setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}l cccc cccc@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l cccc cccc@{}}
 \toprule
 & \multicolumn{4}{c}{\textit{Benchmark Slices}} & \multicolumn{4}{c}{\textit{Deployment Context}} \\
 \cmidrule(lr){2-5} \cmidrule(lr){6-9}
@@ -51,7 +50,7 @@ JailbreakBench  & $\times$     & $\times$     & $\times$     & $\times$     & $\
 API-Bank        & $\triangle$  & $\checkmark$ & $\triangle$  & $\times$     & $\times$     & $\times$     & $\times$     & $\times$ \\
 AgentDojo       & $\triangle$  & $\checkmark$ & $\triangle$  & $\times$     & $\checkmark$ & $\triangle$  & $\times$     & $\triangle$ \\
 \bottomrule
-\end{tabular}}
+\end{tabular*}
 \end{table}
 
 \subsection{Provenance and Delta}

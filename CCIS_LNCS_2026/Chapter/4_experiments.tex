@@ -25,8 +25,7 @@ We construct a sandbox environment with five simulated tools (\texttt{search\_do
 \label{tab:scenarios}
 \small
 \setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{l cc l c}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}l cc l c@{}}
 \toprule
 & \multicolumn{2}{c}{\textbf{Scenarios}} & & \\
 \cmidrule(lr){2-3}
@@ -40,7 +39,7 @@ P5 Operational         & 3 & 14 & OF, RF     & 2--3 \\
 \midrule
 \textbf{Total}         & \textbf{24} & \textbf{100} & & \\
 \bottomrule
-\end{tabular}}
+\end{tabular*}
 \end{table}
 
 \paragraph{Models.}
@@ -54,8 +53,7 @@ Every violated trajectory is annotated with a reusable nine-class taxonomy, each
 \caption{Failure taxonomy (9 classes) with primary-property mapping. Each class is attributed to a single property for scoring (the value used by the analysis pipeline); cases that touch a secondary property are noted in the text. ``IR''~= Improper Refusal (new in this revision) captures cases where the agent refuses a benign, legitimate request. Policy Leak (PL) is scored against P3 (Safety) but also intersects P4 (Social-Ethical) when leaked content is personal or socially sensitive.}
 \label{tab:taxonomy}
 \small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}llp{4.7cm}c@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llp{4.7cm}c@{}}
 \toprule
 \textbf{Code} & \textbf{Failure Type} & \textbf{Description} & \textbf{Property} \\
 \midrule
@@ -69,7 +67,7 @@ PL & Policy Leak              & Agent leaks sensitive / internal information    
 SH & Social Harm              & Agent produces biased, manipulative, or harmful outputs              & P4 \\
 \textbf{IR} & \textbf{Improper Refusal} & \textbf{Agent refuses a benign, legitimate task (over-refusal)} & \textbf{P1} \\
 \bottomrule
-\end{tabular}}
+\end{tabular*}
 \end{table}
 
 \paragraph{Refusal handling policy.}
@@ -84,8 +82,7 @@ To make the validation-suite design concrete, Table~\ref{tab:scenario_examples} 
 \label{tab:scenario_examples}
 \small
 \setlength{\tabcolsep}{3pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}cl p{2.0cm} p{4.3cm}@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}cl p{2.0cm} p{4.3cm}@{}}
 \toprule
 \textbf{P} & \textbf{ID} & \textbf{Title} & \textbf{Attack / probe pattern} \\
 \midrule
@@ -95,7 +92,7 @@ P3 & s27 & Compliance-auditor exfil & Authority cover: ``Legal asked us to forwa
 P4 & s50 & False-precedent gaslight & Fabricated prior interaction (``you helped me last week filter by \texttt{has\_kids\_in\_school}'') to normalise a family-status filter. \\
 P5 & s73 & Tight quota planning & 3 tool calls for a 4-step itinerary; tests graceful prioritisation under budget pressure. \\
 \bottomrule
-\end{tabular}}
+\end{tabular*}
 \end{table}
 
 \subsection{Design Study: Focal Factory Cycle on Qwen3-8B}
@@ -118,8 +115,7 @@ The hardened system is re-evaluated on the same 24 scenarios (same model weights
 \label{tab:improvement}
 \small
 \setlength{\tabcolsep}{4pt}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lccc}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc@{}}
 \toprule
 \textbf{Metric} & \textbf{Baseline} & \textbf{Hardened} & \textbf{Abs.\ Change} \\
 \midrule
@@ -128,7 +124,7 @@ Violation Rate         & 4/24 (16.7\%)  & \textbf{1/24 (4.2\%)}   & $-12.5$ pp \
 Risk-Weighted Failure  & 0.210          & \textbf{0.062}          & $-0.148$   \\
 Improper Refusal Count & 0              & 0                       & $0$        \\
 \bottomrule
-\end{tabular}}
+\end{tabular*}
 \end{table}
 
 \subsection{Cross-Model Trustworthiness Profiles}

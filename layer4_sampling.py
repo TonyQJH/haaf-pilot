@@ -374,8 +374,7 @@ def write_latex(rows, kt, sr, k_subset, n_full):
     lines.append("\\caption{" + cap + "}")
     lines.append("\\label{tab:layer4_validation}")
     lines.append("\\small")
-    lines.append("\\setlength{\\tabcolsep}{4pt}")
-    lines.append("\\begin{tabular}{lcccc}")
+    lines.append("\\begin{tabular*}{\\linewidth}{@{\\extracolsep{\\fill}}lcccc@{}}")
     lines.append("\\toprule")
     lines.append(
         "\\textbf{System} & $\\mathrm{RWF}_{\\text{full}}$ & "
@@ -391,7 +390,7 @@ def write_latex(rows, kt, sr, k_subset, n_full):
             f"{name} & {rf:.3f} & {rs:.3f} & {drwf:.3f} & {drank:.1f} \\\\"
         )
     lines.append("\\bottomrule")
-    lines.append("\\end{tabular}")
+    lines.append("\\end{tabular*}")
     lines.append("\\end{table}")
     INC_TEX.write_text("\n".join(lines) + "\n")
     print(f"[tex]   wrote {INC_TEX}")

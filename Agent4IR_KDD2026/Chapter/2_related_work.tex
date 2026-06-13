@@ -61,20 +61,19 @@ The coverage audit in Table~\ref{tab:coverage} captures the broad benchmark land
 
 \begin{table}[!htbp]
 \centering
-\caption{Adjacent tool-use benchmarks vs.\ HAAF. ``\# Properties'' counts deployment-level trustworthiness properties (P1--P5) explicitly scored; ``Red/Blue Cycle'' indicates whether the suite supports an iterative red-team $\to$ blue-team $\to$ re-evaluation loop; ``IR Scoring'' refers to Improper Refusal as a first-class evaluated class.}
+\caption{Adjacent tool-use benchmarks vs.\ HAAF. ``Props'' = deployment-level trustworthiness properties (P1--P5) explicitly scored; ``R/B Cycle'' = iterative red-team$\,\to\,$blue-team$\,\to\,$re-evaluation loop; ``IR'' = Improper Refusal as a first-class evaluated class. PI = prompt injection; fams.\ = families; dom.\ = domains; L4 = Layer-4 subset-selected.}
 \label{tab:related_delta}
 \small
-\setlength{\tabcolsep}{4pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}l cccccc@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccccl@{}}
 \toprule
-\textbf{Benchmark} & \textbf{\# Properties} & \textbf{\# Models} & \textbf{Red/Blue Cycle} & \textbf{IR Scoring} & \textbf{Sandbox} & \textbf{Scenario Source} \\
+\textbf{Benchmark} & \textbf{Props} & \textbf{Models} & \textbf{R/B} & \textbf{IR} & \textbf{Sandbox} & \textbf{Scenario Source} \\
 \midrule
-AgentDojo~\cite{debenedetti2024agentdojo}     & 1 (injection only)        & 10 & no  & no  & 74 synthetic tools, 4 domains  & 97 tasks + 629 injections, hand-authored \\
-ToolSandbox~\cite{lu2024toolsandbox}          & 0 (5 capability cats.)    & 13 & no  & no  & 34 synthetic tools, 11 domains & 1{,}032 cases, hand-crafted, seeded branching \\
-HAAF (ours)                                   & 5 (P1--P5, incl.\ IR)     & 13 (7 families) & yes & yes & 5-tool synthetic sandbox       & 100 hand-authored scenarios (Layer-4 subset-selected) \\
+AgentDojo~\cite{debenedetti2024agentdojo}     & 1 (PI only)        & 10              & no  & no  & 74 tools, 4 dom.   & 97 tasks + 629 inj., hand-auth.\\
+ToolSandbox~\cite{lu2024toolsandbox}          & 0 (5 cap.\ cats.)  & 13              & no  & no  & 34 tools, 11 dom.  & 1{,}032 cases, hand+seeded \\
+HAAF (ours)                                   & 5 (P1--P5+IR)      & 13 (7 fams.)    & yes & yes & 5 synth.\ tools    & 100 hand-auth.\ (L4 subset)\\
 \bottomrule
-\end{tabular}}
+\end{tabular*}
 \end{table}
 
 \paragraph{Provenance and delta.}

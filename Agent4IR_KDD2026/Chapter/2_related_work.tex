@@ -59,7 +59,7 @@ AgentDojo       & $\triangle$  & $\checkmark$ & $\triangle$  & $\times$     & $\
 
 The coverage audit in Table~\ref{tab:coverage} captures the broad benchmark landscape, but the closest adjacent works to HAAF are two tool-use evaluation suites: AgentDojo~\cite{debenedetti2024agentdojo} and ToolSandbox~\cite{lu2024toolsandbox}. To make the contribution of HAAF precise, we contrast all three along six axes that matter for deployment-level trustworthiness assessment (Table~\ref{tab:related_delta}).
 
-\begin{table}[!htbp]
+\begin{table*}[!htbp]
 \centering
 \caption{Adjacent tool-use benchmarks vs.\ HAAF. ``Props'' = deployment-level trustworthiness properties (P1--P5) explicitly scored; ``R/B Cycle'' = iterative red-team$\,\to\,$blue-team$\,\to\,$re-evaluation loop; ``IR'' = Improper Refusal as a first-class evaluated class. PI = prompt injection; fams.\ = families; dom.\ = domains; L4 = Layer-4 subset-selected.}
 \label{tab:related_delta}
@@ -74,7 +74,7 @@ ToolSandbox~\cite{lu2024toolsandbox}          & 0 (5 cap.\ cats.)  & 13         
 HAAF (ours)                                   & 5 (P1--P5+IR)      & 13 (7 fams.)    & yes & yes & 5 synth.\ tools    & 100 hand-auth.\ (L4 subset)\\
 \bottomrule
 \end{tabular*}
-\end{table}
+\end{table*}
 
 \paragraph{Provenance and delta.}
 HAAF inherits the synthetic-sandbox tool-use evaluation paradigm pioneered by AgentDojo~\cite{debenedetti2024agentdojo} and ToolSandbox~\cite{lu2024toolsandbox}, but extends it along three axes that the adjacent benchmarks deliberately leave out. First, \emph{trustworthiness coverage}: AgentDojo scores a single property (indirect prompt-injection robustness) and ToolSandbox scores zero safety properties (its five categories are tool-use \emph{capability} dimensions), whereas HAAF scores all five deployment-level properties P1--P5 jointly on the same trajectory population. Second, \emph{model breadth}: both prior suites evaluate a fixed model list (10 and 13 respectively) at a single time slice; HAAF spans 13 models across 7 families with version-pair contrasts that expose anti-scaling regressions (\S\ref{subsec:antiscaling_stats}). Third, \emph{iterative protocol}: AgentDojo ships four static defenses and ToolSandbox has no defense loop, while HAAF closes a red-team $\to$ blue-team $\to$ re-evaluation cycle with paired-bootstrap significance testing. Finally, HAAF promotes Improper Refusal (IR) to a first-class evaluated class under P1; neither adjacent benchmark scores IR.

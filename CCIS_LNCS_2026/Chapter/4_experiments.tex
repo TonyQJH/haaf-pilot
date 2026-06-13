@@ -47,11 +47,11 @@ P5 Operational         & 3 & 14 & OF, RF     & 2--3 \\
 The single-model Factory cycle (\S\ref{subsec:vulnerability_attribution}) uses Qwen3-8B, served locally via vLLM with temperature$\,{=}\,0$, on the 24-scenario design-study suite. The cross-model comparison (\S\ref{subsec:profile_comparison}) and the cross-model transfer experiment (\S\ref{subsec:cross_model_treated}) evaluate 13 contemporary systems served through Amazon Bedrock on the 100-scenario validation suite, using the same Control and Treated system prompts as the focal cycle. The 13 systems are drawn from seven well-known model families: \textit{Llama}~\cite{llama3herd} (Llama-3.1-8B, Llama-3.1-70B), \textit{Mistral}~\cite{mistrallarge} (Mistral-Large-2, Mistral-Large-3), \textit{Kimi}\,/\,Moonshot~\cite{kimik2} (Kimi-K2-Thinking, Kimi-K2.5), \textit{GLM}\,/\,Z.AI~\cite{chatglm4} (GLM-4.7, GLM-5), \textit{Qwen}~\cite{qwen3report} (Qwen3-32B, Qwen3-Next-80B), \textit{GPT-oss}\,/\,OpenAI~\cite{gptoss} (GPT-oss-20B, GPT-oss-120B), and \textit{DeepSeek}~\cite{deepseekv3} (DeepSeek-V3.2). Together the systems span open- and closed-weight providers from three geographic regions and roughly two capability tiers per family, providing the diversity needed to make profile differences meaningful rather than noise of a single training recipe. We note that DeepSeek-R1 is available on Bedrock but does not expose tool use through the Converse API, so the DeepSeek family contributes a single representative.
 
 \paragraph{Failure taxonomy.}
-Every violated trajectory is annotated with a reusable nine-class taxonomy, each class explicitly mapped to one or more trustworthiness properties (Table~\ref{tab:taxonomy}). Labelling follows an \emph{earliest-cause} rule: the primary label reflects the first identifiable root cause; labels were assigned by the authors under a shared protocol and reviewed jointly in cases of ambiguity.
+Every violated trajectory is annotated with a reusable nine-class taxonomy, each class explicitly mapped to a primary trustworthiness property for scoring (Table~\ref{tab:taxonomy}). Labelling follows an \emph{earliest-cause} rule: the primary label reflects the first identifiable root cause; labels were assigned by the authors under a shared protocol and reviewed jointly in cases of ambiguity.
 
 \begin{table}[!htbp]
 \centering
-\caption{Failure taxonomy (9 classes) with property mapping. ``IR''~= Improper Refusal (new in this revision) captures cases where the agent refuses a benign, legitimate request.}
+\caption{Failure taxonomy (9 classes) with primary-property mapping. Each class is attributed to a single property for scoring (the value used by the analysis pipeline); cases that touch a secondary property are noted in the text. ``IR''~= Improper Refusal (new in this revision) captures cases where the agent refuses a benign, legitimate request. Policy Leak (PL) is scored against P3 (Safety) but also intersects P4 (Social-Ethical) when leaked content is personal or socially sensitive.}
 \label{tab:taxonomy}
 \small
 \resizebox{\columnwidth}{!}{%
@@ -65,7 +65,7 @@ UA & Unauthorized Action      & Agent performs actions outside permitted scope  
 HT & Hallucinated Tool-use    & Agent calls tools with fabricated parameters / non-existent tools    & P1 \\
 RF & Recovery Failure         & Agent fails to recover from errors gracefully                        & P5 \\
 OF & Operational Failure      & Agent fails under resource constraints (budgets, latency)            & P5 \\
-PL & Policy Leak              & Agent leaks sensitive / internal information                         & P3, P4 \\
+PL & Policy Leak              & Agent leaks sensitive / internal information                         & P3 \\
 SH & Social Harm              & Agent produces biased, manipulative, or harmful outputs              & P4 \\
 \textbf{IR} & \textbf{Improper Refusal} & \textbf{Agent refuses a benign, legitimate task (over-refusal)} & \textbf{P1} \\
 \bottomrule

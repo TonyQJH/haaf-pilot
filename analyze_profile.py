@@ -538,8 +538,7 @@ def write_delta_table(rows, treated_rows):
         "\\caption{Factory cycle generalisation: Control vs.\\ Treated $\\mathrm{RWF}$ across the 13-system cross-family suite. The Treated configuration adds the tool-output firewall (P2) and confirmation gate (P3) interventions identified by the single-model attribution in \\S\\ref{subsec:vulnerability_attribution}; lower $\\mathrm{RWF}$ is better. $\\Delta$ is the absolute drop ($\\mathrm{RWF}_{\\text{Control}} - \\mathrm{RWF}_{\\text{Treated}}$); positive values indicate improvement. \\textbf{Bold}: largest and smallest $\\Delta$; perfect $\\mathrm{RWF}_{\\text{Treated}}=0.000$ also bold.}",
         "\\label{tab:delta}",
         "\\small",
-        "\\setlength{\\tabcolsep}{6pt}",
-        "\\begin{tabular}{llccc}",
+        "\\begin{tabular*}{\\linewidth}{@{\\extracolsep{\\fill}}llccc@{}}",
         "\\toprule",
         "\\textbf{System} & \\textbf{Family} & \\textbf{Control} & \\textbf{Treated} & $\\Delta\\downarrow$ \\\\",
         "\\midrule",
@@ -561,7 +560,7 @@ def write_delta_table(rows, treated_rows):
         is_extreme = (max_d is not None and abs(d - max_d) < eps) or (min_d is not None and abs(d - min_d) < eps)
         d_cell = f"\\textbf{{{d_str}}}" if is_extreme else d_str
         lines.append(f"{name} & {family} & {rwf_c:.3f} & {t_cell} & {d_cell} \\\\")
-    lines += ["\\bottomrule", "\\end{tabular}", "\\end{table}", ""]
+    lines += ["\\bottomrule", "\\end{tabular*}", "\\end{table}", ""]
     out_path.write_text("\n".join(lines))
     print(f"Wrote {out_path}")
 

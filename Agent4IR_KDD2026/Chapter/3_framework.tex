@@ -14,13 +14,12 @@ We model each scenario $s \in \mathcal{S}$ as a structured configuration that ma
 \]
 where $w(s)$ encodes both deployment relevance and risk sensitivity, and $Z=\sum_{s \in Q} w(s)$ is a normalisation factor. When $w(s) \propto P_{\mathrm{deploy}}(s)$, $\hat{\mathbf{T}}_{Q}$ estimates deployment-average trustworthiness; when high-consequence scenarios are upweighted, it becomes a risk-aware assessment rather than a pure estimator of $\mathbf{T}(a)$. In our architecture, \emph{Layer~4} determines \emph{what} should be tested by generating representative scenarios and associated weights, while \emph{Layers~1--3} determine \emph{how} the agent should be probed through complementary signals and stressors. Table~\ref{tab:layer_property} summarises which properties each layer primarily probes, making explicit that no single layer is sufficient. This separation of sampling from instrumentation means the result is not a single benchmark score, but a multi-dimensional trustworthiness profile that supports coverage analysis, root-cause diagnosis, and targeted improvement. Figure~\ref{fig:framework} overviews the framework and a Factory cycle.
 
-\begin{table}[!htbp]
+\begin{table*}[!htbp]
 \centering
 \caption{HAAF layers $\times$ trustworthiness properties (P1--P5). $\bullet$~= primary probing target, $\circ$~= secondary signal. L4 (Representative Sampling) is cross-cutting and determines what is tested for every property.}
 \label{tab:layer_property}
 \small
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccccc@{}}
 \toprule
 & \textbf{P1 Rel.} & \textbf{P2 Rob.} & \textbf{P3 Safe.} & \textbf{P4 S-Eth.} & \textbf{P5 Op.} \\
 \midrule
@@ -28,8 +27,8 @@ L1 Static       & $\circ$   & $\circ$   & $\bullet$ & $\circ$   & $\bullet$ \\
 L2 Sandbox      & $\bullet$ & $\bullet$ & $\bullet$ & $\circ$   & $\bullet$ \\
 L3 Social-Eth.  & $\circ$   & $\circ$   & $\circ$   & $\bullet$ & ---       \\
 \bottomrule
-\end{tabular}
-\end{table}
+\end{tabular*}
+\end{table*}
 
 \paragraph{Failure attribution.}
 HAAF attributes violated trajectories using a nine-class taxonomy---Prompt Injection (PI), Goal Drift (GD), Unauthorized Action (UA), Harmful Tool-use (HT), Resource Failure (RF), Output Failure (OF), Policy Leak (PL), Social Harm (SH), and \emph{Improper Refusal} (IR)---each mapped to one or more of P1--P5; the full mapping and definitions appear in Table~\ref{tab:taxonomy} (\S\ref{sec:experiments}). We list IR explicitly here because it is a first-class member of the taxonomy and not a residual category: IR captures cases in which the agent refuses or substantially fails to help with a \emph{benign, legitimate} request, and is mapped to P1 (Reliability) rather than to safety, so that over-refusal is correctly penalised alongside under-refusal in any deployment-relevant trustworthiness profile.

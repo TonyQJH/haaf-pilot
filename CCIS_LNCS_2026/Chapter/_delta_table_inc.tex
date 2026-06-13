@@ -4,8 +4,7 @@
 \caption{Factory cycle generalisation: Control vs.\ Treated $\mathrm{RWF}$ across the 13-system cross-family suite. The Treated configuration adds the tool-output firewall (P2) and confirmation gate (P3) interventions identified by the single-model attribution in \S\ref{subsec:vulnerability_attribution}; lower $\mathrm{RWF}$ is better. $\Delta$ is the absolute drop ($\mathrm{RWF}_{\text{Control}} - \mathrm{RWF}_{\text{Treated}}$); positive values indicate improvement. \textbf{Bold}: largest and smallest $\Delta$; perfect $\mathrm{RWF}_{\text{Treated}}=0.000$ also bold.}
 \label{tab:delta}
 \small
-\setlength{\tabcolsep}{6pt}
-\begin{tabular}{llccc}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llccc@{}}
 \toprule
 \textbf{System} & \textbf{Family} & \textbf{Control} & \textbf{Treated} & $\Delta\downarrow$ \\
 \midrule
@@ -23,5 +22,5 @@ GPT-oss-20B & GPT & 0.418 & 0.014 & $+0.404$ \\
 GPT-oss-120B & GPT & 0.481 & \textbf{0.000} & \textbf{$+0.481$} \\
 DeepSeek-V3.2 & DeepSeek & 0.486 & 0.205 & $+0.281$ \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}

@@ -6,8 +6,7 @@
 \caption{LLM-judge agreement with the heuristic violation label on a stratified 150-trajectory sample (30 per property, $\sim$50/50 violation/success where the population allowed). The judge is Kimi-K2.5 (Bedrock Converse, temperature$=0$, max\_tokens$=512$); $\kappa$ is Cohen's kappa on the binary \textsc{Violation} label.}
 \label{tab:llmjudge_kappa}
 \small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lcccl}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccl@{}}
 \toprule
 \textbf{Property} & $n$ & \textbf{Agreement} & \textbf{Cohen's }$\kappa$ & \textbf{Interpretation} \\
 \midrule
@@ -19,7 +18,7 @@ P5 & 30 & 0.400 & 0.118 & slight \\
 \midrule
 Overall & 150 & 0.607 & 0.287 & fair \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
 
 \begin{table}[!htbp]
@@ -27,15 +26,14 @@ Overall & 150 & 0.607 & 0.287 & fair \\
 \caption{Improper-refusal (IR) confusion matrix: rows are the heuristic IR flag (violation-detail string mentions ``refusal''/``IR''), columns are the LLM judge's \texttt{is\_improper\_refusal} field over the records the judge parsed. Against the judge as a proxy gold label, the heuristic has precision$=$n/a, recall$=$0.000, F1$=$n/a.}
 \label{tab:ir_confusion}
 \small
-\setlength{\tabcolsep}{6pt}
-\begin{tabular}{lcc}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcc@{}}
 \toprule
  & \textbf{Judge IR=yes} & \textbf{Judge IR=no} \\
 \midrule
 \textbf{Heuristic IR=yes} & 0 & 0 \\
 \textbf{Heuristic IR=no}  & 21 & 129 \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
 
 \begin{table}[!htbp]
@@ -43,8 +41,7 @@ Overall & 150 & 0.607 & 0.287 & fair \\
 \caption{Distribution of the LLM judge's \texttt{refusal\_type} label across the 150-trajectory sample, broken out by Control vs Treated agents.}
 \label{tab:refusal_taxonomy}
 \small
-\setlength{\tabcolsep}{6pt}
-\begin{tabular}{lccc}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc@{}}
 \toprule
 \textbf{Refusal type} & \textbf{Control} & \textbf{Treated} & \textbf{Total} \\
 \midrule
@@ -55,5 +52,5 @@ hedged & 0 & 2 & 2 \\
 partial & 1 & 9 & 10 \\
 tool\_abandon & 5 & 9 & 14 \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}

@@ -66,6 +66,7 @@ The coverage audit in Table~\ref{tab:coverage} captures the broad benchmark land
 \label{tab:related_delta}
 \small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}l cccccc@{}}
 \toprule
 \textbf{Benchmark} & \textbf{\# Properties} & \textbf{\# Models} & \textbf{Red/Blue Cycle} & \textbf{IR Scoring} & \textbf{Sandbox} & \textbf{Scenario Source} \\
@@ -74,7 +75,7 @@ AgentDojo~\cite{debenedetti2024agentdojo}     & 1 (injection only)        & 10 &
 ToolSandbox~\cite{lu2024toolsandbox}          & 0 (5 capability cats.)    & 13 & no  & no  & 34 synthetic tools, 11 domains & 1{,}032 cases, hand-crafted, seeded branching \\
 HAAF (ours)                                   & 5 (P1--P5, incl.\ IR)     & 13 (7 families) & yes & yes & 5-tool synthetic sandbox       & 100 hand-authored scenarios (Layer-4 subset-selected) \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table*}
 
 \paragraph{Provenance and delta.}

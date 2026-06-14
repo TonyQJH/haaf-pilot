@@ -148,12 +148,12 @@ Four observations are robust on this suite.
 %
 \emph{(F4) Reasoning- and MoE-style flagships exhibit a P2--P3 co-occurrence pattern.} A cluster of four reasoning- or MoE-style flagships---GPT-oss-120B (RWF~$0.481$), DeepSeek-V3.2 ($0.486$), Kimi-K2-Thinking ($0.434$), and Qwen3-Next-80B ($0.587$)---shares a distinctive failure signature: P2 weakness ($\hat T_{P_2}\!\in\![0.45,0.60]$) co-occurring with severe P3 weakness ($\hat T_{P_3}\!\in\![0.14,0.27]$), suggesting that safety regressions in these systems are not isolated but tied to broader instruction-following degradation under adversarial or socially-charged input. This co-occurrence pattern is invisible to any single-score benchmark.
 
-\begin{figure}[!htbp]
+\begin{figure*}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{figures/profile_radar.pdf}
 \caption{\textbf{Trustworthiness profile across 13 agentic systems from seven model families} on the 100-scenario HAAF validation Control suite. Each cell shows $\hat T_{P_k}$ for one system $\times$ property pair (green~=~trustworthy, red~=~violated); the rightmost column shows the risk-weighted aggregate $\mathrm{RWF}$ (lower is better) and rows are sorted by it.}
 \label{fig:profile_radar}
-\end{figure}
+\end{figure*}
 
 \paragraph{Layer-4 subset validation.}
 The 100-scenario suite is deliberately oversized for cost-conscious downstream users. To check that the cross-model ranking does not depend on this scale, we re-evaluate all 13 systems on the 40-scenario subset selected by the Layer-4 reference implementation of \S\ref{subsubsec:layer4_reference} (the greedy submodular selection over coverage, risk, complexity, and redundancy). Table~\ref{tab:layer4_validation} shows that the per-model $\mathrm{RWF}$ rises uniformly on the subset---as expected, since the objective up-weights high-risk and high-complexity scenarios---but the cross-model rank correlation against the full-100 ranking is Kendall-$\tau=0.890$ and Spearman-$\rho=0.963$. Broadly the same comparative conclusions therefore hold on a $2.5\times$ smaller, objective-selected suite, providing a cheaper but ranking-preserving evaluation route.
@@ -176,12 +176,12 @@ Table~\ref{tab:delta} reports $\mathrm{RWF}_{\text{Control}}$, $\mathrm{RWF}_{\t
 %
 \input{Chapter/_delta_table_inc.tex}
 %
-\begin{figure}[!htbp]
+\begin{figure*}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{figures/before_after_rwf.pdf}
 \caption{\textbf{Factory cycle generalisation across 13 cross-family systems on the 100-scenario validation suite.} The identical pair of blue-team interventions identified from Qwen3-8B's 24-scenario failure profile (tool-output firewall + confirmation gate) is applied uniformly to every system, with no per-model and no per-scenario tuning. Red bars: Control RWF; green bars: Treated RWF. Lower is better. Systems sorted by Control RWF ascending (best on left), matching the order of Figure~\ref{fig:profile_radar}.}
 \label{fig:before_after}
-\end{figure}
+\end{figure*}
 %
 \emph{First, the interventions transfer to most but not all of the 13 systems.} Twelve of 13 systems show a substantive $\Delta\mathrm{RWF}\ge 0.13$; the remaining system (Qwen3-32B, $\Delta=+0.019$) is intervention-resistant and is discussed separately below. Among the 12 that transfer, the largest gains occur on the systems that were weakest under Control: GPT-oss-120B ($0.481 \to 0.000$, $\Delta=+0.481$, the largest absolute improvement in the entire study), GPT-oss-20B ($0.418 \to 0.014$, $\Delta=+0.404$), Mistral-Large-3 ($0.396 \to 0.101$, $\Delta=+0.295$), Llama-3.1-70B ($0.407 \to 0.115$, $\Delta=+0.292$), and DeepSeek-V3.2 ($0.486 \to 0.205$, $\Delta=+0.281$). Two systems drop to zero detected violations under Treated (GPT-oss-120B, Llama-3.1-8B) on this 100-scenario L1 sandbox; we read this as a ceiling effect of the suite at the current fidelity rung rather than as evidence of deployment-perfect behaviour. This is suggestive evidence that interventions designed from a single small open-weight model's failure trajectories can also reduce measured risk on different architectures, providers, and capability tiers on the same sandbox; we stop short of claiming the HAAF Factory mechanism is model-agnostic, since (i)~one of the 13 systems is intervention-resistant and (ii)~transfer is tested on a single shared sandbox surface.
 %

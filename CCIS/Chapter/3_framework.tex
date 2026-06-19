@@ -6,68 +6,52 @@
 \subsection{Overview: Trustworthiness over a Scenario Manifold}
 \label{subsec:overview}
 
-To operationalize representative, deployment-aligned trustworthiness estimation, we introduce the \textbf{Holographic Agent Assessment Framework} (HAAF), which evaluates agents over a structured \emph{socio-technical scenario manifold} rather than a flat collection of instances. The term ``holographic'' emphasizes that trustworthiness cannot be reconstructed from any single projection: reliability, robustness, safety, and alignment emerge only when an agent is examined from multiple complementary views under representative deployment conditions. Each scenario $s \in \mathcal{S}$ varies along task objective, tool interface, interaction depth, environmental constraint, social context, and consequence severity. For an agent $a$, the framework produces $\mathbf{m}(a,s) = (m_{P_1}(a,s), \dots, m_{P_5}(a,s))$ aligned with the five properties of Section~\ref{subsec:defining_trustworthiness}. Aggregated over a weighted set $Q \subset \mathcal{S}$:
+The \textbf{Holographic Agent Assessment Framework} (HAAF) evaluates agents over a structured socio-technical scenario manifold rather than a flat collection of instances: trustworthiness cannot be reconstructed from any single projection, but only when an agent is examined from multiple complementary views under representative deployment conditions. For an agent $a$ and scenario $s \in \mathcal{S}$, the framework produces $\mathbf{m}(a,s) = (m_{P_1}(a,s), \dots, m_{P_5}(a,s))$ aligned with the five properties of \S\ref{subsec:defining_trustworthiness}; aggregated over a weighted set $Q \subset \mathcal{S}$,
 \[
 \hat{\mathbf{T}}_{Q}(a) = \frac{1}{Z}\sum_{s \in Q} w(s)\,\mathbf{m}(a,s),
 \]
-where $w(s)$ encodes deployment relevance and risk sensitivity. Layer~4 determines \emph{what} is tested; Layers~1--3 determine \emph{how}. Table~\ref{tab:layer_property} maps layers to probed properties; Figure~\ref{fig:framework} overviews the framework and a Factory cycle.
-
-\begin{table}[!htbp]
-\centering
-\caption{HAAF layers $\times$ trustworthiness properties (P1--P5). $\bullet$~= primary probing target, $\circ$~= secondary signal. L4 (Representative Sampling) is cross-cutting and determines what is tested for every property.}
-\label{tab:layer_property}
-\small
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccccc@{}}
-\toprule
-& \textbf{P1 Rel.} & \textbf{P2 Rob.} & \textbf{P3 Safe.} & \textbf{P4 S-Eth.} & \textbf{P5 Op.} \\
-\midrule
-L1 Static       & $\circ$   & $\circ$   & $\bullet$ & $\circ$   & $\bullet$ \\
-L2 Sandbox      & $\bullet$ & $\bullet$ & $\bullet$ & $\circ$   & $\bullet$ \\
-L3 Social-Eth.  & $\circ$   & $\circ$   & $\circ$   & $\bullet$ & ---       \\
-\bottomrule
-\end{tabular*}
-\end{table}
+where $w(s)$ encodes deployment relevance and risk sensitivity. Layer~4 determines \emph{what} is tested; Layers~1--3 determine \emph{how}. Figure~\ref{fig:framework} overviews the framework and a Factory cycle: Layers~1--3 probe complementary properties (L1 static analysis primarily P3/P5; L2 sandbox primarily P1--P3,P5; L3 social-ethical primarily P4), with Layer~4 cross-cutting.
 
 \paragraph{Failure attribution.}
-HAAF attributes violated trajectories via a nine-class taxonomy (PI, GD, UA, HT, RF, OF, PL, SH, IR) mapped to P1--P5 (Table~\ref{tab:taxonomy}, \S\ref{sec:experiments}). \emph{Improper Refusal} (IR) is a first-class member capturing refusals on \emph{benign, legitimate} requests, mapped to P1 so over-refusal is penalised alongside under-refusal.
+HAAF attributes violations via a nine-class taxonomy (PI, GD, UA, HT, RF, OF, PL, SH, IR) mapped to P1--P5 (Table~\ref{tab:taxonomy}, \S\ref{sec:experiments}). \emph{Improper Refusal} (IR) is a first-class member capturing refusals on benign legitimate requests, mapped to P1 so over-refusal is penalised alongside under-refusal.
 
 \paragraph{Comparison methodology.}
-We compare systems via per-property contrast $\hat T_{P_k}(a)$ vs.\ $\hat T_{P_k}(a')$, a Pareto-dominance check, and a deployment-conditioned risk-weighted aggregate $\sum_k \lambda_k \hat T_{P_k}$, deliberately avoiding any context-free scalar; \S\ref{subsec:profile_comparison} instantiates per-property profiles and the scenario-risk-weighted $\mathrm{RWF}$, with systematic Pareto-front analysis left to v2.
+We compare systems via per-property contrast $\hat T_{P_k}(a)$ vs.\ $\hat T_{P_k}(a')$, Pareto-dominance, and a deployment-conditioned risk-weighted aggregate $\sum_k \lambda_k \hat T_{P_k}$, deliberately avoiding any context-free scalar; \S\ref{subsec:profile_comparison} instantiates per-property profiles and the scenario-risk-weighted $\mathrm{RWF}$, with systematic Pareto-front analysis left to v2.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\columnwidth,clip,trim=12cm 0cm 0cm 9.5cm]{figures/main_figure_yifan1.pdf}
-\caption{\textbf{(a)}~Current benchmarks evaluate isolated capability islands (safety, coding, search, etc.) without a unified distributional perspective. \textbf{(b)}~The Holographic Agent Assessment Framework (HAAF): Layer~4 generates representative scenarios via distribution-aware sampling; Layers~1--3 probe the agent from complementary views (static analysis, interactive sandbox, and social-ethical assessment); the Trustworthy Optimization Factory iterates red-team probing and blue-team hardening until deployment readiness.}
+\caption{\textbf{(a)}~Current benchmarks evaluate isolated capability islands without a unified distributional perspective. \textbf{(b)}~HAAF: Layer~4 generates representative scenarios; Layers~1--3 probe complementary views; the Trustworthy Optimization Factory iterates red-team probing and blue-team hardening until deployment readiness.}
 \label{fig:framework}
 \end{figure}
 
-\paragraph{Layer 1 (Static Cognitive and Policy Analysis).}
-Layer~1 performs static analysis on policy-visible artifacts (system instructions, tool descriptions, permission scopes, memory/retrieval interfaces, escalation rules) to surface latent vulnerability surfaces before interaction begins, emitting static risk hypotheses that prioritise downstream dynamic tests. The v1 instantiation in this paper does not exercise L1.
+\paragraph{Layer 1 (Static).}
+Layer~1 performs static analysis on policy-visible artifacts (system instructions, tool descriptions, permission scopes, memory/retrieval interfaces, escalation rules) to surface latent vulnerability surfaces before interaction begins. The v1 instantiation does not exercise L1.
 
 \subsection{Layer 2: Interactive Sandbox Simulation}
 \label{subsec:layer2}
 
-Layer~2 evaluates agents through interactive sandbox simulation~\cite{yao2024taubench,lu2024toolsandbox}, recording full trajectories under benign-but-complex tasks (reliability), adversarial or deceptive conditions (prompt injection, tool-output corruption~\cite{debenedetti2024agentdojo,liu2023promptinj}) for robustness, and resource-constrained settings for graceful degradation. The v1 instantiation (\S\ref{subsec:setup}) ships a minimal five-tool sandbox; broader coverage is deferred to v2.
+Layer~2 evaluates agents through interactive sandbox simulation~\cite{yao2024taubench,lu2024toolsandbox}, recording full trajectories under benign-but-complex tasks (reliability), adversarial conditions (prompt injection, tool-output corruption~\cite{debenedetti2024agentdojo,liu2023promptinj}) for robustness, and resource-constrained settings for graceful degradation. The v1 instantiation (\S\ref{subsec:setup}) ships a minimal five-tool sandbox; broader coverage is deferred to v2.
 
 \paragraph{Sandbox Fidelity Ladder.}
-A standing objection to any sandboxed evaluation is that synthetic tools do not capture the failure modes of production systems. We make the realism dimension explicit by organising sandboxes along a four-rung \emph{Sandbox Fidelity Ladder}: \textbf{L1 Toy}---hand-authored synthetic tools over synthetic data, prioritising reproducibility and safety; \textbf{L2 Controlled}---production-like tool surfaces backed by a sandbox replica of real services (e.g., shadow databases, mock APIs with realistic schemas and latency); \textbf{L3 Shadowed-prod}---live read paths against production data with write paths shadowed to staging, so that consequences remain reversible; and \textbf{L4 Live}---agents deployed to production users with end-to-end audit logs and rollback. The instantiation in this paper is unambiguously L1, which we treat as a feature of the v1 methodology rather than a hidden limitation: the framework, the property taxonomy, the sampling objective, and the Factory cycle are invariant to which rung the sandbox sits on, and only the cost-of-error and the deployment-relevance weight $w(s)$ change as one climbs the ladder. Lifting our instantiation to L2--L3 is concrete future work (\S\ref{sec:discussion}), not a re-design.
+We make the realism dimension explicit by organising sandboxes along a four-rung \emph{Sandbox Fidelity Ladder}: \textbf{L1 Toy}---hand-authored synthetic tools over synthetic data; \textbf{L2 Controlled}---production-like surfaces backed by a replica of real services (shadow databases, mock APIs with realistic schemas and latency); \textbf{L3 Shadowed-prod}---live read paths against production data with write paths shadowed to staging; \textbf{L4 Live}---agents deployed to production users with audit and rollback. The instantiation in this paper is unambiguously L1: the framework, taxonomy, sampling objective, and Factory cycle are invariant to which rung the sandbox sits on, and only the cost-of-error and deployment-relevance weight $w(s)$ change as one climbs. Lifting to L2--L3 is concrete future work (\S\ref{sec:discussion}), not a re-design.
 
-\paragraph{Layer 3 (Social and Ethical Alignment).}
-Layer~3 extends evaluation to social and ethical alignment~\cite{zhou2023sotopia,pan2023machiavelli}: simulated multi-party settings (human--agent collaboration, agent--agent coordination, role-conditioned delegation, negotiation) probe biased decisions, manipulation susceptibility, collusion, over-compliance with unsafe authority, and value drift---dimensions invisible to technical-only evaluations.
+\paragraph{Layer 3 (Social-Ethical).}
+Layer~3 extends evaluation to social and ethical alignment~\cite{zhou2023sotopia,pan2023machiavelli}: simulated multi-party settings probe biased decisions, manipulation susceptibility, collusion, over-compliance with unsafe authority, and value drift---dimensions invisible to technical-only evaluations.
 
 \subsection{Layer 4: Distribution-Aware Representative Sampling}
 \label{subsec:layer4}
 
-The core engine of HAAF is distribution-aware representative sampling: the challenge is the \emph{right distribution} of behaviors, not more behaviors. The manifold is partitioned into regions by task family, interface, interaction horizon, environmental stress, social sensitivity, and consequence severity; each region is scored by deployment relevance and risk contribution~\cite{koh2021wilds,liang2023helm,kiela2021dynabench,shirali2022dynamicbench}, jointly accounting for coverage and risk. The sampling objective selects $Q^{*} = \arg\max_{Q \subseteq \mathcal{S}} [\alpha\,\mathrm{Cov}(Q) + \beta\,\mathrm{Risk}(Q) + \eta\,\mathrm{Comp}(Q) - \gamma\,\mathrm{Red}(Q)]$, where $\mathrm{Cov}$ measures coverage, $\mathrm{Risk}$ emphasizes high-consequence regions, $\mathrm{Comp}$ rewards compositional diversity, and $\mathrm{Red}$ penalizes redundancy. A practical engine draws from deployment logs, incident reports, red-team libraries, and risk schemas and should support \emph{compositional scenario generation}; the v1 instantiation uses single-primary-property hand-authored scenarios, with compositional generation deferred to v2.
+The core engine of HAAF is distribution-aware representative sampling: the challenge is the \emph{right distribution}, not more behaviors. The manifold is partitioned into regions by task family, interface, interaction horizon, environmental stress, social sensitivity, and consequence severity; each region is scored by deployment relevance and risk contribution~\cite{koh2021wilds,liang2023helm,kiela2021dynabench,shirali2022dynamicbench}. The objective selects $Q^{*} = \arg\max_{Q \subseteq \mathcal{S}} [\alpha\,\mathrm{Cov}(Q) + \beta\,\mathrm{Risk}(Q) + \eta\,\mathrm{Comp}(Q) - \gamma\,\mathrm{Red}(Q)]$, where $\mathrm{Cov}$ measures coverage, $\mathrm{Risk}$ emphasizes high-consequence regions, $\mathrm{Comp}$ rewards compositional diversity, and $\mathrm{Red}$ penalizes redundancy. A practical engine draws from deployment logs, incident reports, and risk schemas; the v1 instantiation uses single-primary-property hand-authored scenarios, with compositional generation deferred to v2.
 
 \subsubsection{Sampling Objective and Reference Implementation}
 \label{subsubsec:layer4_reference}
 
-To prevent the sampling objective from remaining a purely conceptual prescription, we ship a concrete reference implementation, \texttt{layer4\_\allowbreak sampling.py}, that instantiates the four functionals as computable scalars over a candidate scenario set $Q$. $\mathrm{Cov}(Q)$ is the normalised Shannon entropy across the joint distribution of property $P_k$ and failure-target class; $\mathrm{Risk}(Q)$ is the sum of per-scenario risk-severity weights; $\mathrm{Comp}(Q)$ is the mean per-scenario compositional complexity, defined as the count of tools, non-empty initial-context fields, and explicit safety rules; and $\mathrm{Red}(Q)$ is the mean pairwise Hamming similarity of $(P_k,\text{target},\text{tool-set})$ feature vectors. A greedy submodular selection with weights $(\alpha,\beta,\eta,\gamma)=(0.4,0.3,0.2,0.1)$ picks $K{=}40$ of the 100 (hand-authored) validation scenarios. Re-evaluating all 13 systems on this 40-scenario subset preserves the cross-model trustworthiness ranking with Kendall-$\tau=0.890$ and Spearman-$\rho=0.963$ (Table~\ref{tab:layer4_validation}), indicating that a $2.5\times$ smaller, objective-selected suite preserves the broad comparative conclusions at substantially lower evaluation cost.
+To prevent the sampling objective from remaining a purely conceptual prescription, we ship \texttt{layer4\_\allowbreak sampling.py}, which instantiates the four functionals as computable scalars over a candidate scenario set $Q$. $\mathrm{Cov}(Q)$ is the normalised Shannon entropy across the joint of property $P_k$ and failure-target class; $\mathrm{Risk}(Q)$ is the sum of severity weights; $\mathrm{Comp}(Q)$ is the mean per-scenario complexity (count of tools, non-empty initial-context fields, explicit safety rules); $\mathrm{Red}(Q)$ is the mean pairwise Hamming similarity of $(P_k,\text{target},\text{tool-set})$ feature vectors. A greedy submodular selection with $(\alpha,\beta,\eta,\gamma)=(0.4,0.3,0.2,0.1)$ picks $K{=}40$ of the 100 hand-authored validation scenarios; re-evaluating all 13 systems on this subset preserves the cross-model ranking at Kendall-$\tau=0.890$ and Spearman-$\rho=0.963$ (Table~\ref{tab:layer4_validation}), so a $2.5\times$ smaller objective-selected suite preserves the broad comparative conclusions at substantially lower evaluation cost.
 
 \input{Chapter/_layer4_validation_inc}
 
 \subsection{The Trustworthy Optimization Factory}
 \label{subsec:factory}
 
-The four layers define an iterative pipeline. Each cycle alternates a \textbf{red-team} phase that exposes vulnerabilities and attributes failures to root causes, and a \textbf{blue-team} phase that designs targeted interventions (prompt hardening, tool-output sanitization, confirmation gates, policy refinement). The hardened system is re-evaluated through a new red-team pass until convergence metrics (Violation Rate, Risk-Weighted Failure) meet a predefined acceptance threshold, at which point the system has met \emph{deployment-readiness} criteria for its target distribution.
+The four layers define an iterative pipeline. Each cycle alternates a \textbf{red-team} phase that exposes vulnerabilities and attributes failures to root causes, and a \textbf{blue-team} phase that designs targeted interventions (prompt hardening, tool-output sanitization, confirmation gates, policy refinement). The hardened system is re-evaluated until convergence metrics (Violation Rate, Risk-Weighted Failure) meet a predefined acceptance threshold---\emph{deployment-readiness} for the target distribution.

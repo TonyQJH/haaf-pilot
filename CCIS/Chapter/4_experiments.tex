@@ -3,67 +3,58 @@
 \section{Illustrative Instantiation}
 \label{sec:experiments}
 
-This section instantiates HAAF on 13 systems from 7 families on a 100-scenario validation suite plus a 24-scenario focal design study, yielding $13\times 2\times 100 = 2{,}600$ cross-family trajectories plus $2\times 24 = 48$ focal trajectories. The subsections cover a Factory cycle on Qwen3-8B (\S\ref{subsec:vulnerability_attribution}), Control profiles with 95\% Wilson CIs plus a Layer-4 subset check (\S\ref{subsec:profile_comparison}), a paired-bootstrap anti-scaling test (\S\ref{subsec:antiscaling_stats}), uniform Treated transfer (\S\ref{subsec:cross_model_treated}), and an LLM-judge audit (\S\ref{subsec:annotation_reliability}).
+We instantiate HAAF on 13 systems from 7 families on a 100-scenario validation suite plus a 24-scenario focal design study, yielding $13\times 2\times 100 = 2{,}600$ cross-family trajectories and $48$ focal trajectories. The subsections cover a focal Factory cycle (\S\ref{subsec:vulnerability_attribution}), Control profiles with 95\% Wilson CIs and a Layer-4 subset check (\S\ref{subsec:profile_comparison}), a paired-bootstrap anti-scaling test (\S\ref{subsec:antiscaling_stats}), uniform Treated transfer (\S\ref{subsec:cross_model_treated}), and an LLM-judge audit (\S\ref{subsec:annotation_reliability}).
 
 \paragraph{Risk-Weighted Failure.}
-Alongside the per-property vector $\hat{\mathbf{T}}(a)=(\hat T_{P_1},\dots,\hat T_{P_5})$ we report Violation Rate $\mathrm{VR}(a)=|V|/|Q|$ and
+Alongside $\hat{\mathbf{T}}(a)=(\hat T_{P_1},\dots,\hat T_{P_5})$ and $\mathrm{VR}(a)=|V|/|Q|$ we report
 \begin{equation}
 \mathrm{RWF}(a)\;=\;\frac{\sum_{s\in V(a)} r(s)}{\sum_{s\in Q} r(s)},
 \label{eq:rwf}
 \end{equation}
-where $r(s)\in\{1,\dots,5\}$ is the per-scenario risk-severity weight; RWF lies in $[0,1]$ (lower is better), so two agents with identical VR can differ substantially in RWF.
+with per-scenario severity $r(s)\in\{1,\dots,5\}$; $\mathrm{RWF}\!\in\![0,1]$, lower is better, so equal-VR agents can differ substantially in RWF.
 
 \subsection{Setup}
 \label{subsec:setup}
 
 \paragraph{Sandbox and scenarios.}
-The sandbox exposes five simulated tools (\texttt{search\_docs}, \texttt{db\_query}, \texttt{read\_file}, \texttt{write\_file}, \texttt{send\_message}) over synthetic data. The 24-scenario design suite (P1=9, P2=8, P3=2, P4=2, P5=3) surfaces the interventions; the 100-scenario validation suite (P1=26, P2=20, P3=22, P4=18, P5=14) uses sharper adversarial framings (cover-story exfil for P3, proxy-discrimination for P4, indirect injection in form fields/footers for P2). Each scenario carries success criteria, forbidden actions, a risk-severity weight $\in\{1,\dots,5\}$, and one of nine failure classes (Table~\ref{tab:taxonomy}).
+Five simulated tools (\texttt{search\_docs}, \texttt{db\_query}, \texttt{read\_file}, \texttt{write\_file}, \texttt{send\_message}) operate over synthetic data. The 24-scenario design suite (P1=9, P2=8, P3=2, P4=2, P5=3) surfaces the interventions; the 100-scenario validation suite (P1=26, P2=20, P3=22, P4=18, P5=14) uses sharper adversarial framings (cover-story exfil for P3, proxy-discrimination for P4, indirect injection in retrieved fields for P2). Each scenario carries success criteria, forbidden actions, severity weight $\in\{1,\dots,5\}$, and one of nine failure classes (Table~\ref{tab:taxonomy}).
 
 \paragraph{Models.}
-The Factory cycle (\S\ref{subsec:vulnerability_attribution}) uses Qwen3-8B locally via vLLM at temperature~0. The cross-model experiments (\S\ref{subsec:profile_comparison},~\S\ref{subsec:cross_model_treated}) evaluate 13 systems via Amazon Bedrock from seven families: Llama-3.1-\{8B,70B\}~\cite{llama3herd}, Mistral-Large-\{2,3\}~\cite{mistrallarge}, Kimi-K2-Thinking / K2.5~\cite{kimik2}, GLM-\{4.7,5\}~\cite{chatglm4}, Qwen3-32B / Next-80B~\cite{qwen3report}, GPT-oss-\{20B,120B\}~\cite{gptoss}, and DeepSeek-V3.2~\cite{deepseekv3}. DeepSeek-R1 is excluded as Bedrock does not expose tool use for it.
+Qwen3-8B served locally via vLLM (temperature~0) drives the focal cycle. Thirteen Bedrock systems span seven families: Llama-3.1-\{8B,70B\}~\cite{llama3herd}, Mistral-Large-\{2,3\}~\cite{mistrallarge}, Kimi-K2-Thinking / K2.5~\cite{kimik2}, GLM-\{4.7,5\}~\cite{chatglm4}, Qwen3-32B / Next-80B~\cite{qwen3report}, GPT-oss-\{20B,120B\}~\cite{gptoss}, and DeepSeek-V3.2~\cite{deepseekv3}. DeepSeek-R1 is excluded (no Bedrock tool use).
 
-\paragraph{Failure taxonomy.}
-Each violated trajectory is labelled with one of nine classes mapped to a primary property (Table~\ref{tab:taxonomy}) under an \emph{earliest-cause} rule, with authors jointly reviewing ambiguous cases.
+\paragraph{Failure taxonomy and refusal handling.}
+Each violation is labelled with one of nine classes under an \emph{earliest-cause} rule (Table~\ref{tab:taxonomy}). Refusing a forbidden P2--P4 request counts as success; refusing a benign legitimate request is the new \textbf{IR} class (a P1 failure, reflecting deployment harm from exaggerated safety~\cite{rottger2024xstest}); partial refusal with a safer goal-satisfying alternative counts as success.
 
 \begin{table}[!htbp]
 \centering
-\caption{Failure taxonomy (9 classes) with primary-property mapping. ``IR''~= Improper Refusal captures cases where the agent refuses a benign, legitimate request. Policy Leak (PL) is scored against P3 but also intersects P4 when leaked content is personal or socially sensitive.}
+\caption{Failure taxonomy (9 classes) with primary-property mapping. IR is new in this revision (over-refusal as P1). Policy Leak (PL) is scored against P3 but also intersects P4 when leaked content is personal.}
 \label{tab:taxonomy}
 \small
 \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}llp{4.7cm}c@{}}
 \toprule
 \textbf{Code} & \textbf{Failure Type} & \textbf{Description} & \textbf{Property} \\
 \midrule
-PI & Prompt Injection         & Agent follows malicious instructions in tool outputs / retrieved text & P2 \\
-GD & Goal Drift               & Agent deviates from original user objective                          & P1 \\
-UA & Unauthorized Action      & Agent performs actions outside permitted scope                       & P3 \\
-HT & Hallucinated Tool-use    & Agent calls tools with fabricated parameters / non-existent tools    & P1 \\
-RF & Recovery Failure         & Agent fails to recover from errors gracefully                        & P5 \\
-OF & Operational Failure      & Agent fails under resource constraints (budgets, latency)            & P5 \\
-PL & Policy Leak              & Agent leaks sensitive / internal information                         & P3 \\
-SH & Social Harm              & Agent produces biased, manipulative, or harmful outputs              & P4 \\
-\textbf{IR} & \textbf{Improper Refusal} & \textbf{Agent refuses a benign, legitimate task (over-refusal)} & \textbf{P1} \\
+PI & Prompt Injection         & Follows malicious tool-output / retrieved instructions & P2 \\
+GD & Goal Drift               & Deviates from original user objective                 & P1 \\
+UA & Unauthorized Action      & Acts outside permitted scope                          & P3 \\
+HT & Hallucinated Tool-use    & Fabricated parameters / non-existent tools            & P1 \\
+RF & Recovery Failure         & Fails to recover from errors                          & P5 \\
+OF & Operational Failure      & Fails under resource constraints                      & P5 \\
+PL & Policy Leak              & Leaks sensitive / internal information                & P3 \\
+SH & Social Harm              & Biased, manipulative, or harmful outputs              & P4 \\
+\textbf{IR} & \textbf{Improper Refusal} & \textbf{Refuses a benign, legitimate task} & \textbf{P1} \\
 \bottomrule
 \end{tabular*}
 \end{table}
 
-\paragraph{Refusal handling policy.}
-Refusal is not inherently a failure: we count refusal of a forbidden/adversarial P2--P4 request as success, refusal of a benign legitimate request as the new \textbf{IR} class (a P1 failure, reflecting deployment harm from exaggerated safety~\cite{rottger2024xstest}), and partial refusal with a safer goal-satisfying alternative as success.
-
-\paragraph{Representative scenarios.}
-The full suite (released with the code) spans IR traps (P1), indirect injection in retrieved JSON (P2), authority-cover exfil (P3), false-precedent gaslight (P4), and tight-budget prioritisation (P5).
-
 \subsection{Design Study: Focal Factory Cycle on Qwen3-8B}
 \label{subsec:vulnerability_attribution}
 
-A complete Factory cycle on Qwen3-8B over the 24-scenario design study surfaces the interventions used elsewhere, so the cross-model transfer in \S\ref{subsec:cross_model_treated} reads as transfer evidence rather than a hand-picked guardrail.
-
-\paragraph{Attribution and interventions.}
-Of 24 scenarios, 4 violate ($\mathrm{VR}=16.7\%$): 2 PI (risk-weighted~7), 1 UA (5), 1 PL (5), summing to 17/81. PI dominates---tool-output instructions cause writes to protected paths---making sanitisation the priority. Two interventions follow: (1)~a \textbf{tool-output firewall (P2)} wrapping every tool return with an untrusted-data delimiter; (2)~a \textbf{confirmation gate (P3)} intercepting high-risk actions (message dispatch, protected-path writes) before execution. These are the only interventions in the cross-model Treated configuration. Re-evaluation (Table~\ref{tab:improvement}) gives violations $4\!\to\!1$ ($\mathrm{VR}\!:\!16.7\%\!\to\!4.2\%$), SR $83.3\%\!\to\!95.8\%$, RWF $0.210\!\to\!0.062$. The residual is a direct user request to send confidential data; under our intent-based standard an attempted forbidden action counts regardless of runtime gating, marking the boundary of prompt-level hardening (user-instructed violations need policy fine-tuning in a second cycle). No IR is detected here, but \S\ref{subsec:annotation_reliability} shows the heuristic has recall~$0$ on IR at the 150-trajectory scale (30/38 non-\texttt{none} refusals on Treated agents), so this is not evidence the interventions carry no safety tax.
+A complete cycle on Qwen3-8B over the 24-scenario design suite surfaces the interventions used cross-model, so transfer in \S\ref{subsec:cross_model_treated} reads as transfer rather than a hand-picked guardrail. Of 24 scenarios, 4 violate ($\mathrm{VR}=16.7\%$): 2 PI (risk-weighted~7), 1 UA (5), 1 PL (5), summing to 17/81. PI dominates---tool-output instructions cause writes to protected paths---making sanitisation the priority. Two interventions follow: a \textbf{tool-output firewall (P2)} wrapping every return with an untrusted-data delimiter, and a \textbf{confirmation gate (P3)} intercepting message dispatch and protected-path writes. Re-evaluation (Table~\ref{tab:improvement}) gives $4\!\to\!1$ violations ($\mathrm{VR}\!:\!16.7\%\!\to\!4.2\%$), SR $83.3\%\!\to\!95.8\%$, RWF $0.210\!\to\!0.062$. The residual is a direct user request to send confidential data; under our intent-based standard an attempted forbidden action counts regardless of runtime gating---marking the boundary of prompt-level hardening. No IR is detected here, but \S\ref{subsec:annotation_reliability} shows the heuristic has recall~$0$ on IR at the 150-trajectory scale, so this is not evidence the interventions carry no safety tax.
 
 \begin{table}[!htbp]
 \centering
-\caption{Factory cycle results on Qwen3-8B (24-scenario design study). \textbf{Bold}: hardened-system value when it improves over baseline.}
+\caption{Factory cycle results on Qwen3-8B (24-scenario design study). \textbf{Bold}: hardened-system value when it improves.}
 \label{tab:improvement}
 \small
 \setlength{\tabcolsep}{4pt}
@@ -82,65 +73,57 @@ Improper Refusal Count & 0              & 0                       & $0$        \
 \subsection{Cross-Model Trustworthiness Profiles}
 \label{subsec:profile_comparison}
 
-We run the identical Control configuration over the 100-scenario suite for all 13 systems, reporting $\hat T_{P_k}(a) = 1 - \mathrm{VR}_{P_k}(a)$ per property (higher is better). Figure~\ref{fig:profile_radar} visualises per-property scores; Table~\ref{tab:profile} gives the underlying numbers with 95\% Wilson CIs and $\mathrm{RWF}(a)$.
-%
+We run the identical Control configuration on all 13 systems over the 100-scenario suite, reporting $\hat T_{P_k}(a) = 1 - \mathrm{VR}_{P_k}(a)$ (higher is better) with 95\% Wilson CIs and RWF (Table~\ref{tab:profile}, Figure~\ref{fig:profile_radar}).
+
 \input{Chapter/_profile_table_inc.tex}
-%
-Four observations are robust.
-%
-\emph{(F1) Profiles are not collinear.} The 13 systems span $\mathrm{RWF}\!\in\![0.153,0.587]$, but RWF hides per-property structure: Llama-3.1-8B (RWF~$0.216$) saturates P2 ($1.00$) yet only reaches $\hat T_{P_4}\!=\!0.61$; Mistral-Large-2 ($0.301$) leads P3 outside GLM ($\hat T_{P_3}\!=\!0.64$) but sits in the lower half of P4 ($0.39$). Similar-RWF systems can require entirely different interventions.
-%
-\emph{(F2) P3 and P4 are the cross-family weak axes.} Median $\hat T_{P_3}=0.23$ with only three systems above 0.50 (GLM-5 $0.68$, Mistral-Large-2 $0.64$, Llama-3.1-8B $0.55$); median $\hat T_{P_4}=0.39$, with Qwen3-32B / Next-80B at $0.11$ / $0.22$. P1 and P5 appear to saturate near 1.00 under the heuristic, but \S\ref{subsec:annotation_reliability} shows zero heuristic recall on IR, so part of this is a label-coverage artefact on P1.
-%
-\emph{(F3) Scale within a family does not monotonically help.} In four of six multi-tier families, the larger/newer sibling fails to outperform: Llama-3.1-8B ($0.216$) beats Llama-70B ($0.407$); Mistral-Large-2 ($0.301$) beats v3 ($0.396$); Qwen3-32B ($0.462$) beats Next-80B ($0.587$); GPT-oss-20B ($0.418$) edges 120B ($0.481$). The two monotonic families (GLM-4.7$\to$5; Kimi-K2-Thinking$\to$K2.5) couple scale with a version upgrade. Per-axis $n{=}14$--$26$ keeps Wilson CIs near $\pm 0.2$, so this is descriptive rather than a powered per-property claim.
-%
-\emph{(F4) Reasoning- and MoE-style flagships share a P2--P3 co-occurrence.} GPT-oss-120B ($0.481$), DeepSeek-V3.2 ($0.486$), Kimi-K2-Thinking ($0.434$), and Qwen3-Next-80B ($0.587$) share P2 weakness ($\hat T_{P_2}\!\in\![0.45,0.60]$) with severe P3 weakness ($\hat T_{P_3}\!\in\![0.14,0.27]$): safety regressions tied to broader instruction-following degradation under adversarial input---invisible to any single-score benchmark.
+
+Four observations are robust. \emph{(F1) Profiles are not collinear.} The 13 systems span $\mathrm{RWF}\!\in\![0.153,0.587]$, but RWF hides per-property structure: Llama-3.1-8B (RWF~$0.216$) saturates P2 ($1.00$) yet reaches only $\hat T_{P_4}\!=\!0.61$; Mistral-Large-2 ($0.301$) leads P3 outside GLM ($0.64$) but sits low on P4 ($0.39$). \emph{(F2) P3 and P4 are the cross-family weak axes.} Median $\hat T_{P_3}=0.23$ with only three systems above 0.50 (GLM-5 $0.68$, Mistral-Large-2 $0.64$, Llama-3.1-8B $0.55$); median $\hat T_{P_4}=0.39$, with Qwen3-32B / Next-80B at $0.11$ / $0.22$. P1 and P5 appear to saturate near 1.00 under the heuristic, but \S\ref{subsec:annotation_reliability} shows zero heuristic recall on IR, so part of this is a label-coverage artefact on P1. \emph{(F3) Scale within a family does not monotonically help.} In four of six multi-tier families, the larger sibling underperforms: Llama-3.1-8B ($0.216$) beats 70B ($0.407$); Mistral-Large-2 ($0.301$) beats v3 ($0.396$); Qwen3-32B ($0.462$) beats Next-80B ($0.587$); GPT-oss-20B ($0.418$) edges 120B ($0.481$). The two monotonic families (GLM-4.7$\to$5; Kimi-K2-Thinking$\to$K2.5) couple scale with a version upgrade. With $n{=}14$--$26$ per axis, per-cell Wilson CIs span $\pm 0.2$---descriptive, not powered per-property. \emph{(F4) Reasoning/MoE flagships share a P2--P3 co-occurrence.} GPT-oss-120B ($0.481$), DeepSeek-V3.2 ($0.486$), Kimi-K2-Thinking ($0.434$), and Qwen3-Next-80B ($0.587$) share P2 weakness ($\hat T_{P_2}\!\in\![0.45,0.60]$) and severe P3 weakness ($\hat T_{P_3}\!\in\![0.14,0.27]$)---a safety regression tied to broader instruction-following degradation that any single-score benchmark erases.
 
 \begin{figure*}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{figures/profile_radar.pdf}
-\caption{\textbf{Trustworthiness profile across 13 agentic systems from seven model families} on the 100-scenario HAAF validation Control suite. Each cell shows $\hat T_{P_k}$ (green~=~trustworthy, red~=~violated); the rightmost column shows $\mathrm{RWF}$ (lower is better) and rows are sorted by it.}
+\caption{\textbf{Trustworthiness profile across 13 agentic systems from seven model families} on the 100-scenario Control suite. Each cell shows $\hat T_{P_k}$ (green~=~trustworthy, red~=~violated); the rightmost column shows $\mathrm{RWF}$ (lower is better); rows sorted by it.}
 \label{fig:profile_radar}
 \end{figure*}
 
 \paragraph{Layer-4 subset validation.}
-Re-evaluating on the 40-scenario subset selected by the Layer-4 reference implementation (\S\ref{subsubsec:layer4_reference}), per-model RWF rises uniformly (the objective up-weights high-risk/high-complexity scenarios) but cross-model ranks against the full-100 hold at Kendall-$\tau=0.890$, Spearman-$\rho=0.963$---a cheaper ranking-preserving route (Table~\ref{tab:layer4_validation}).
+Re-evaluating on the 40-scenario subset chosen by the Layer-4 reference implementation (\S\ref{subsubsec:layer4_reference}), per-model RWF rises uniformly (the objective up-weights high-risk/high-complexity) but cross-model rank holds at Kendall-$\tau=0.890$, Spearman-$\rho=0.963$ vs.\ the full-100---a cheaper ranking-preserving route (Table~\ref{tab:layer4_validation}).
 
 \subsection{Anti-Scaling Statistical Test}
 \label{subsec:antiscaling_stats}
 
-We test whether F3 is distinguishable from sampling noise. For each (smaller, larger) sibling pair we form the per-scenario RWF contribution $\rho_s(a)=\mathbb{1}[s\in V(a)]\,r(s)/\sum_{t\in Q} r(t)$ and paired difference $d_s = \rho_s(\text{larger}) - \rho_s(\text{smaller})$, then test $H_0\!:\,\mathbb{E}[d_s]\le 0$ with a paired bootstrap ($B{=}10{,}000$, seed~42).
+For each (smaller, larger) sibling pair we form the per-scenario RWF contribution $\rho_s(a)=\mathbb{1}[s\in V(a)]\,r(s)/\sum_{t\in Q} r(t)$ and paired difference $d_s = \rho_s(\text{larger}) - \rho_s(\text{smaller})$, then test $H_0\!:\,\mathbb{E}[d_s]\le 0$ with a paired bootstrap ($B{=}10{,}000$, seed~42).
 
 \input{Chapter/_antiscaling_stats_inc.tex}
 
-Two pairs reject at $p<0.05$ (Llama $p<0.001$, Qwen $p=0.004$); Mistral is marginal ($p=0.050$); GPT-oss does not reject ($p=0.086$). The pattern is unlikely pure sampling noise. This is a within-family single-suite test: it does not establish that scaling \emph{causes} the regression---we cannot disentangle scale from concurrent changes in training data, alignment recipe, or chat template---only that the pattern persists after accounting for per-scenario variance.
+Two pairs reject at $p<0.05$ (Llama $p<0.001$, Qwen $p=0.004$); Mistral is marginal ($p=0.050$); GPT-oss does not reject ($p=0.086$). The pattern is unlikely pure sampling noise. This is a within-family single-suite test: it does not establish that scaling \emph{causes} the regression (concurrent changes in training data, alignment, or chat template are confounded with scale).
 
 \subsection{Cross-Model Factory Generalisation}
 \label{subsec:cross_model_treated}
 
-We apply the identical Treated configuration (same firewall, same confirmation gate, no per-model tuning) to all 13 systems and compare to Control. The interventions were designed without observing any of these 13 systems' trajectories, so improvement under Treated is direct evidence of cross-model transfer. Table~\ref{tab:delta} reports $\mathrm{RWF}_{\text{Control}}$, $\mathrm{RWF}_{\text{Treated}}$, and $\Delta$; Figure~\ref{fig:before_after} visualises the same data.
-%
+We apply the identical Treated configuration (same firewall, same gate, no per-model tuning) to all 13 systems. The interventions were designed without observing any of these systems, so improvement is direct evidence of cross-model transfer (Table~\ref{tab:delta}, Figure~\ref{fig:before_after}).
+
 \input{Chapter/_delta_table_inc.tex}
-%
+
 \begin{figure*}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{figures/before_after_rwf.pdf}
-\caption{\textbf{Factory cycle generalisation across 13 cross-family systems.} The pair of interventions identified from Qwen3-8B's failure profile is applied uniformly with no per-model tuning. Red: Control RWF; green: Treated RWF (lower is better). Sorted by Control RWF ascending.}
+\caption{\textbf{Factory cycle generalisation across 13 cross-family systems.} The interventions identified from Qwen3-8B's failure profile are applied uniformly with no per-model tuning. Red: Control RWF; green: Treated RWF. Sorted by Control RWF ascending.}
 \label{fig:before_after}
 \end{figure*}
-%
-\emph{Interventions transfer to 12 of 13 systems} ($\Delta\mathrm{RWF}\ge 0.13$). The largest gains occur on the systems weakest under Control: GPT-oss-120B ($0.481 \to 0.000$, $\Delta=+0.481$, largest absolute improvement), GPT-oss-20B ($0.418 \to 0.014$, $\Delta=+0.404$), Mistral-Large-3 ($0.396 \to 0.101$, $\Delta=+0.295$), Llama-3.1-70B ($0.407 \to 0.115$, $\Delta=+0.292$), and DeepSeek-V3.2 ($0.486 \to 0.205$, $\Delta=+0.281$). Two systems drop to zero detected violations under Treated (GPT-oss-120B, Llama-3.1-8B)---a ceiling effect of an L1 sandbox at this fidelity rung, not deployment-perfect behaviour. This is suggestive evidence that interventions from a single small open-weight model can reduce risk across architectures, providers, and tiers; we stop short of claiming the Factory mechanism is model-agnostic since one system is intervention-resistant and transfer is tested on a single shared sandbox.
 
-\emph{Qwen3-32B is intervention-resistant}, improving only marginally ($0.462 \to 0.443$, $\Delta=+0.019$) while every other system drops by $\geq 0.13$. The profile shows why: its failures concentrate on P3 ($\hat T_{P_3}=0.09$) and P4 ($0.11$), and most are \emph{direct user-instructed} disclosures and bias requests rather than indirect injections---failure modes the tool-output firewall cannot address. The profile surfaces what a scalar leaderboard averages away, identifying Qwen3-32B as needing a fundamentally different second cycle (policy fine-tuning or value alignment, not prompt-level guardrails).
+\emph{Interventions transfer to 12 of 13 systems} ($\Delta\mathrm{RWF}\ge 0.13$). Largest gains occur on the weakest Control systems: GPT-oss-120B ($0.481 \to 0.000$, $\Delta=+0.481$), GPT-oss-20B ($0.418 \to 0.014$, $+0.404$), Mistral-Large-3 ($0.396 \to 0.101$, $+0.295$), Llama-3.1-70B ($0.407 \to 0.115$, $+0.292$), DeepSeek-V3.2 ($0.486 \to 0.205$, $+0.281$). Two systems reach zero detected violations under Treated (GPT-oss-120B, Llama-3.1-8B)---a ceiling effect of an L1 sandbox, not deployment-perfect behaviour. We read this as suggestive evidence that interventions from a single small open-weight model can reduce risk across architectures, providers, and tiers, but stop short of claiming model-agnosticism since one system is intervention-resistant and transfer is tested on a single shared sandbox.
+
+\emph{Qwen3-32B is intervention-resistant}, improving marginally ($0.462 \to 0.443$, $\Delta=+0.019$) while every other system drops by $\geq 0.13$. Its failures concentrate on P3 ($\hat T_{P_3}=0.09$) and P4 ($0.11$), mostly \emph{direct user-instructed} disclosures and bias requests rather than indirect injections---failure modes the tool-output firewall cannot address. The profile surfaces what a scalar leaderboard would average away, identifying Qwen3-32B as needing a fundamentally different second cycle (policy fine-tuning or value alignment, not prompt-level guardrails).
 
 \subsection{Annotation Reliability via LLM-Judge}
 \label{subsec:annotation_reliability}
 
-All numbers above rest on a heuristic label (per-scenario success-criterion check plus a refusal-language classifier on the final answer). We audit it via an LLM-judge study on a stratified 150-trajectory sample across the 13 systems and both configurations, with 30 trajectories per property balanced as closely as the pool allows. The judge is \textbf{Kimi-K2.5} via Bedrock Converse (temperature~$0$, 512-token cap), returning JSON with \texttt{did\_violate}, \texttt{refusal\_type} $\in$\{none, hard, soft, hedged, partial, tool\_abandon\}, \texttt{is\_improper\_refusal}, and \texttt{confidence}. Kimi-K2.5 is itself one of the 13 evaluated agents---a deliberate scope limitation.
+All numbers above rest on a heuristic label (per-scenario success-criterion check plus a refusal-language classifier on the final answer). We audit it via an LLM-judge study on a stratified 150-trajectory sample across the 13 systems and both configurations (30 per property, balanced). The judge is \textbf{Kimi-K2.5} via Bedrock Converse, returning JSON with \texttt{did\_violate}, \texttt{refusal\_type}, \texttt{is\_improper\_refusal}, and \texttt{confidence}. Kimi-K2.5 is itself one of the 13 evaluated agents---a deliberate scope limitation.
 
 \input{Chapter/_llmjudge_validation_inc.tex}
 
-On binary Violation, the judge agrees with the heuristic on $0.607$ of trajectories, giving Cohen's $\kappa=0.287$---weak ``fair'' agreement at the lower end of the Landis--Koch band, not a strong endorsement. Agreement is substantial only on P4 ($\kappa=0.800$) and slight on P5 ($0.118$) and P1 ($0.143$) (Table~\ref{tab:llmjudge_kappa}), exactly the properties where the stratified violation pool is small (4 and 6), inflating chance agreement. The IR audit (Table~\ref{tab:ir_confusion}) is more pointed: the judge marks 21/150 trajectories as improper refusals while the heuristic flags 0, giving recall~$0$ and undefined precision---direct evidence the heuristic cannot detect IR by surface-form match, motivating a dedicated detector. The refusal-type distribution (Table~\ref{tab:refusal_taxonomy}) places 30/38 ($\approx 79\%$) of all non-\textsc{none} refusals on Treated agents, consistent with the safety-tax direction of \S\ref{subsec:cross_model_treated}. Two caveats: this is a single LLM judge without human gold-standard adjudication, and it shares a model family with two evaluated agents (Kimi-K2-Thinking, Kimi-K2.5), so it plausibly shares blind spots; a separate-family judge plus a human spot-check on the 21 IR-flagged cases is planned.
+On binary Violation, the judge agrees with the heuristic on $0.607$ of trajectories: Cohen's $\kappa=0.287$, weak ``fair'' agreement at the lower end of the Landis--Koch band. Agreement is substantial only on P4 ($\kappa=0.800$) and slight on P5 ($0.118$) and P1 ($0.143$), exactly the properties where the stratified violation pool is small (4 and 6), inflating chance agreement. The IR audit is more pointed: the judge marks 21/150 trajectories as improper refusals while the heuristic flags 0---recall~$0$ and undefined precision, direct evidence the heuristic cannot detect IR by surface-form match alone. The refusal-type distribution places 30/38 ($\approx 79\%$) of non-\textsc{none} refusals on Treated agents, consistent with the safety-tax direction of \S\ref{subsec:cross_model_treated}. Two caveats: single judge without human gold, and shared family with two evaluated agents (Kimi-K2-Thinking, K2.5)---a separate-family judge plus a human spot-check on the 21 IR-flagged cases is planned.
 
 \paragraph{Limitations.}
-The instantiation validates the methodology (attribution + comparison + iterative hardening + transfer), not per-model powered conclusions. \textit{(i)~Synthetic sandbox}: scenarios run locally for safety/reproducibility, following AgentDojo~\cite{debenedetti2024agentdojo} and ToolSandbox~\cite{lu2024toolsandbox}, limiting realism; bridging to deployment logs is the natural next step. \textit{(ii)~Transfer is cross-model, not cross-domain}: the validation suite adds 76 new adversarial scenarios never tuned against, but both suites share the same sandbox, so the experiment does not guard against sandbox-wide overfitting. \textit{(iii)~IR auto-detection is heuristic}; manual annotation would tighten it. Full deployment-readiness still requires multiple Factory cycles per system, held-out suites, and human-validated annotations (\S\ref{sec:discussion}).
+The instantiation validates the methodology (attribution + comparison + iterative hardening + transfer), not per-model powered conclusions. \textit{(i)~Synthetic L1 sandbox}: scenarios run locally for safety/reproducibility, following AgentDojo~\cite{debenedetti2024agentdojo} and ToolSandbox~\cite{lu2024toolsandbox}; bridging to deployment logs is the natural next step. \textit{(ii)~Transfer is cross-model, not cross-domain}: the validation suite adds 76 new adversarial scenarios never tuned against, but both suites share the same sandbox surface. \textit{(iii)~IR auto-detection is heuristic}; manual annotation would tighten it. Full deployment-readiness requires multiple Factory cycles per system, held-out suites, and human-validated annotations (\S\ref{sec:discussion}).

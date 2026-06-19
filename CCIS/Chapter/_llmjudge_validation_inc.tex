@@ -36,21 +36,5 @@ Overall & 150 & 0.607 & 0.287 & fair \\
 \end{tabular*}
 \end{table}
 
-\begin{table}[!htbp]
-\centering
-\caption{Distribution of the LLM judge's \texttt{refusal\_type} label across the 150-trajectory sample, broken out by Control vs Treated agents.}
-\label{tab:refusal_taxonomy}
-\small
-\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lccc@{}}
-\toprule
-\textbf{Refusal type} & \textbf{Control} & \textbf{Treated} & \textbf{Total} \\
-\midrule
-none & 73 & 39 & 112 \\
-hard & 2 & 9 & 11 \\
-soft & 0 & 1 & 1 \\
-hedged & 0 & 2 & 2 \\
-partial & 1 & 9 & 10 \\
-tool\_abandon & 5 & 9 & 14 \\
-\bottomrule
-\end{tabular*}
-\end{table}
+% tab:refusal_taxonomy dropped for camera-ready compression; key statistic
+% (30/38 non-none refusals on Treated, ~79%) is reported inline in §4.6.

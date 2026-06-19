@@ -1,0 +1,25 @@
+
+
+
+\section{Limitations and Ethics Statement}
+\label{sec:limitations_ethics}
+
+\subsection{Limitations}
+\label{subsec:limitations}
+
+\paragraph{Statistical scope.}
+With $n{=}14$--$26$ scenarios per property, per-cell Wilson CIs span roughly $\pm 0.2$, so the headline statistics are descriptive of cross-family trends rather than powered per-property claims. The instantiation validates the methodology (attribution + comparison + iterative hardening + transfer), not per-model powered conclusions; full deployment-readiness requires multiple Factory cycles per system, held-out suites, and human-validated annotations.
+
+\paragraph{LLM-judge methodology.}
+The LLM-judge audit (\S\ref{subsec:annotation_reliability}) uses Kimi-K2.5, itself one of the 13 evaluated agents---a deliberate scope limitation, since the judge plausibly shares blind spots with the two Kimi-family models it audits. A separate-family judge plus a human spot-check on the 21 IR-flagged cases is committed as v2. IR auto-detection is also heuristic; manual annotation would tighten it.
+
+\paragraph{Synthetic sandbox.}
+Scenarios run locally for safety and reproducibility against the five synthetic tools of \S\ref{subsec:setup}, following AgentDojo~\cite{debenedetti2024agentdojo} and ToolSandbox~\cite{lu2024toolsandbox}. Our methodology is invariant to which Sandbox Fidelity Ladder rung (L1 Toy $\to$ L4 Live) the deployment sits on; the v1 instantiation here is L1, with L2 (Controlled) committed as v2. Transfer is cross-model, not cross-domain: the validation suite adds 76 new adversarial scenarios never tuned against, but both suites share the same sandbox surface.
+
+\paragraph{Scenario authoring and dual-use.}
+The 100 scenarios map their five sandbox tools to top-$K$ operation classes in SWE-bench~\cite{jimenez2023swebench}, API-Bank~\cite{li2023apibank}, WebArena~\cite{zhou2023webarena}, and AgentBench~\cite{liu2023agentbench} but are hand-authored: a deployment-grounded sampler that draws weights from production telemetry is committed as v2. The adversarial framings we release carry a dual-use risk, mitigated by pairing the suite with the blue-team hardening cycle and by promoting Improper Refusal to a first-class class so that blanket refusal is not rewarded as a substitute for value-aligned judgement.
+
+\subsection{Ethics Statement}
+\label{subsec:ethics}
+
+This work catalogues adversarial framings (indirect prompt injection, authority-cover exfiltration, proxy-discrimination, role-play jailbreaks) that could in principle be misused. Three properties of the artefact bound this risk. \textit{(i)~No human subjects, no PII.} All 100 scenarios, retrieved documents, simulated user profiles, and tool outputs are synthetic and hand-authored; no human-subjects data, production logs, or scraped personal information enter the suite, so no IRB review was required and no individual is identifiable in the release. \textit{(ii)~Sandboxed execution only.} Every trajectory runs against the five synthetic tools of \S\ref{subsec:setup} in a local L1 sandbox; the released code does not ship live network, shell, or browser tools, so replaying a scenario cannot reach a real user, database, or external API. \textit{(iii)~Responsible release.} We release the scenario suite paired with the blue-team interventions (tool-output firewall, confirmation gate) that neutralise the matching attack class, and we publish the Improper-Refusal taxonomy class explicitly so that downstream users cannot reduce a HAAF score by training agents to refuse more. Models accessed through Amazon Bedrock were used under standard provider terms; no model weights were fine-tuned in this study.

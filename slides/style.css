@@ -1,0 +1,542 @@
+/* ---------------------------------------------------------------
+   Beyond Benchmark Islands — Agent4IR @ KDD 2026
+
+   Palette is lifted from the official KDD 2026 logo artwork
+   (public/KDD26-Logo4-black.png), sampled directly:
+     #0A2224  ink / deep teal-black
+     #F66558  coral
+     #3F8882  mid teal
+     #61ACA5  light teal
+   Text-bearing tokens are darkened from the brand values so they
+   clear WCAG AA on white; the brand values stay for fills and rules.
+   --------------------------------------------------------------- */
+
+:root {
+  --kdd-ink:     #0A2224;
+  --kdd-coral:   #F66558;
+  --kdd-teal:    #3F8882;
+  --kdd-teal-lt: #61ACA5;
+
+  --accent:      #2E7D71;  /* teal, darkened for body text on white */
+  --accent-soft: #E7F1EF;
+  --warn:        #CE4436;  /* coral, darkened for text */
+  --warn-soft:   #FDECE9;
+  --good:        #3F8882;
+  --good-soft:   #E7F1EF;
+  --ink:         #0A2224;
+  --muted:       #55676A;
+  --rule:        #DBE4E2;
+  --surface:     #F4F8F7;
+}
+
+html.dark {
+  --accent:      #7FC7BC;
+  --accent-soft: #12312D;
+  --warn:        #F58A7C;
+  --warn-soft:   #3A211D;
+  --good:        #61ACA5;
+  --good-soft:   #12312D;
+  --ink:         #E9F0EE;
+  --muted:       #9BAEAB;
+  --rule:        #274441;
+  --surface:     #10292A;
+}
+
+.slidev-layout {
+  color: var(--ink);
+}
+
+/* ---------- headings ---------- */
+
+.slidev-layout h1 {
+  font-size: 1.72rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  padding-bottom: 0.42rem;
+  margin-bottom: 0.1rem;
+  border-bottom: 2px solid var(--rule);
+}
+
+.slidev-layout h1 + p {
+  margin-top: 0.5rem;
+  opacity: 0.75;
+}
+
+.slidev-layout h2 {
+  font-size: 1.18rem;
+  font-weight: 650;
+}
+
+.accent-text { color: var(--accent); }
+
+/* ---------- tables ---------- */
+
+.slidev-layout table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86em;
+  line-height: 1.35;
+}
+
+.slidev-layout table th {
+  text-align: left;
+  font-weight: 650;
+  font-size: 0.9em;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--muted);
+  border-bottom: 1.5px solid var(--rule);
+  padding: 0.3em 0.55em;
+  background: transparent;
+}
+
+.slidev-layout table td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.3em 0.55em;
+}
+
+.slidev-layout table tr:last-child td {
+  border-bottom: none;
+}
+
+.slidev-layout table tbody tr:hover {
+  background: var(--surface);
+}
+
+.nowrap-table table td,
+.nowrap-table table th {
+  white-space: nowrap;
+}
+
+/* markdown parsed inside HTML cards wraps content in <p> — kill the
+   leading/trailing margins so the card padding stays honest */
+.card-plain > p:first-child,
+.card-key > p:first-child,
+.card-warn > p:first-child,
+.statement > p:first-child,
+.gap-block > p:first-child { margin-top: 0; }
+
+.card-plain > p:last-child,
+.card-key > p:last-child,
+.card-warn > p:last-child,
+.statement > p:last-child,
+.gap-block > p:last-child { margin-bottom: 0; }
+
+.card-plain > ul:last-child,
+.card-key > ul:last-child,
+.card-warn > ul:last-child { margin-bottom: 0; }
+
+/* ---------- generic content blocks ---------- */
+
+.card-plain,
+.card-key,
+.card-warn {
+  border-radius: 6px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.card-plain {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+}
+
+.card-key {
+  background: var(--accent-soft);
+  border: 1px solid transparent;
+  border-left: 3px solid var(--accent);
+}
+
+.card-warn {
+  background: var(--warn-soft);
+  border: 1px solid transparent;
+  border-left: 3px solid var(--warn);
+}
+
+.card-plain ul,
+.card-key ul,
+.card-warn ul {
+  margin: 0;
+  padding-left: 1.05rem;
+}
+
+.card-plain li,
+.card-key li,
+.card-warn li {
+  margin: 0.22rem 0;
+}
+
+.statement {
+  font-size: 0.95rem;
+  line-height: 1.45;
+  padding: 0.6rem 0.9rem;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 6px 6px 0;
+}
+
+.warn-line {
+  font-size: 0.86rem;
+  line-height: 1.45;
+  padding-left: 0.75rem;
+  border-left: 3px solid var(--warn);
+  color: var(--muted);
+}
+
+.caption {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  vertical-align: middle;
+}
+
+.pill.v2 { background: var(--good); }
+
+/* ---------- slide 3: gap blocks ---------- */
+
+.gap-block {
+  position: relative;
+  padding: 0.6rem 0.85rem 0.7rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: 0.87rem;
+  line-height: 1.42;
+  background: var(--surface);
+}
+
+.gap-tag {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--warn);
+}
+
+.gap-title {
+  font-size: 1.02rem;
+  font-weight: 650;
+  margin: 0.1rem 0 0.3rem 0;
+  color: var(--ink);
+}
+
+.gap-block .katex-display {
+  margin: 0.5rem 0;
+  font-size: 0.86em;
+}
+
+/* ---------- slide 4: roadmap cards ---------- */
+
+.road-card {
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.75rem 0.7rem;
+  line-height: 1.42;
+  background: var(--surface);
+}
+
+.road-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.road-h {
+  font-size: 1.02rem;
+  font-weight: 650;
+  margin: 0.05rem 0 0.32rem 0;
+}
+
+/* ---------- slide 6: layer rows ---------- */
+
+.layer-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.87rem;
+  line-height: 1.4;
+  padding: 0.3rem 0.5rem;
+  border-radius: 5px;
+  margin-bottom: 0.28rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+}
+
+.layer-row.factory {
+  background: var(--accent-soft);
+  border-color: transparent;
+  border-left: 3px solid var(--accent);
+}
+
+.layer-tag {
+  flex: none;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.08rem 0.35rem;
+  border-radius: 4px;
+  background: var(--rule);
+  color: var(--muted);
+}
+
+.layer-tag.l4 { background: var(--good); color: #fff; }
+.layer-tag.f  { background: var(--accent); color: #fff; }
+
+/* ---------- big number cards ---------- */
+
+.bignum-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.bignum-card {
+  text-align: center;
+  padding: 0.7rem 0.4rem;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+}
+
+.bignum {
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.bignum-lab {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  color: var(--muted);
+}
+
+/* ---------- setup cards ---------- */
+
+.setup-card {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.88rem;
+  line-height: 1.42;
+  background: var(--surface);
+}
+
+.setup-h {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.35rem;
+}
+
+/* ---------- finding cards ---------- */
+
+.find-card {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 5px;
+  padding: 0.5rem 0.65rem;
+  line-height: 1.4;
+  background: var(--surface);
+}
+
+.find-card.hot {
+  border-left-color: var(--warn);
+  background: var(--warn-soft);
+}
+
+.find-h {
+  font-weight: 650;
+  font-size: 0.95em;
+  margin-bottom: 0.2rem;
+}
+
+/* ---------- intervention cards ---------- */
+
+.iv-card {
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  background: var(--surface);
+}
+
+.iv-h {
+  font-weight: 650;
+  font-size: 0.95rem;
+  margin-bottom: 0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ---------- takeaway cards ---------- */
+
+.take-card {
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.85rem 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  background: var(--surface);
+}
+
+.take-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.35;
+}
+
+.take-h {
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin: 0.2rem 0 0.35rem 0;
+}
+
+/* ---------- fidelity ladder ---------- */
+
+.ladder-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  opacity: 0.6;
+}
+
+.ladder-row.now {
+  opacity: 1;
+  background: var(--accent-soft);
+  border-color: transparent;
+  border-left: 3px solid var(--accent);
+}
+
+.ladder-row.next {
+  opacity: 1;
+  background: var(--good-soft);
+  border-color: transparent;
+  border-left: 3px solid var(--good);
+}
+
+.ladder-tag {
+  flex: none;
+  font-weight: 700;
+  font-size: 0.82rem;
+  width: 1.7rem;
+  color: var(--accent);
+}
+
+/* ---------- cover ---------- */
+
+.slidev-layout.cover,
+.slidev-layout.cover h1 {
+  border-bottom: none;
+}
+
+/* ---------- KDD dark slides (cover, thank-you, section divider) ---------- */
+
+.slidev-layout.kdd-dark {
+  background: var(--kdd-ink);
+  color: #EEF4F3;
+}
+
+.slidev-layout.kdd-dark h1 {
+  color: #FFFFFF;
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+
+.slidev-layout.kdd-dark .accent-text {
+  color: var(--kdd-coral);
+}
+
+/* the brand's woodblock-swirl motif, abstracted to a soft radial wash so the
+   dark slides don't read as a flat black rectangle */
+.slidev-layout.kdd-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 70% at 88% 18%, rgba(63, 136, 130, 0.30), transparent 62%),
+    radial-gradient(ellipse 55% 60% at 8% 92%, rgba(246, 101, 88, 0.16), transparent 60%);
+  pointer-events: none;
+}
+
+.slidev-layout.kdd-dark > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* hairline of brand colour under the cover wordmark */
+.kdd-rule {
+  height: 3px;
+  width: 84px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--kdd-coral) 0 46%, var(--kdd-teal-lt) 54% 100%);
+}
+
+.kdd-logo-cover {
+  height: 46px;
+  width: auto;
+}
+
+.kdd-chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: rgba(255, 255, 255, 0.86);
+}
+
+/* ---------- math sizing ---------- */
+
+.katex-display {
+  margin: 0.6rem 0;
+}
+
+.katex { font-size: 1em; }
+
+/* ---------- lists ---------- */
+
+.slidev-layout ul {
+  padding-left: 1.15rem;
+}
+
+.slidev-layout li {
+  margin: 0.2rem 0;
+  line-height: 1.45;
+}
+
+.slidev-layout li::marker {
+  color: var(--accent);
+}

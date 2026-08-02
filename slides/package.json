@@ -1,0 +1,22 @@
+{
+  "name": "haaf-agent4ir-slides",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Beyond Benchmark Islands — Agent4IR @ KDD 2026 talk (Slidev)",
+  "type": "module",
+  "scripts": {
+    "dev": "slidev --open",
+    "build": "slidev build",
+    "export": "slidev export --output dist/BeyondBenchmarkIslands-Agent4IR.pdf",
+    "export-pptx": "slidev export --format pptx --scale 2 --output dist/BeyondBenchmarkIslands-Agent4IR.pptx",
+    "export-notes": "slidev export-notes --output dist/speaker-notes.pdf",
+    "export-upload": "node scripts/build-upload.mjs",
+    "export-all": "npm run export && npm run export-pptx && npm run export-notes && npm run export-upload"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@slidev/cli": "^52.18.1",
+    "@slidev/theme-default": "^0.25.0",
+    "playwright-chromium": "^1.62.1"
+  }
+}
